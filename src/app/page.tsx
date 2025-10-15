@@ -297,11 +297,6 @@ export default function Home() {
                 <div className="text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line">
                   {aboutSection.description}
                 </div>
-                {aboutSection.buttonText && aboutSection.buttonLink && (
-                  <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-                    <Link href={aboutSection.buttonLink}>{aboutSection.buttonText}</Link>
-                  </Button>
-                )}
               </div>
             </div>
           </div>

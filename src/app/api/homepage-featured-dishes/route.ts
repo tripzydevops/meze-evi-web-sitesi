@@ -112,15 +112,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Menu item exists, inserting with RAW SQL...');
+    console.log('Menu item exists, inserting with RAW SQL including timestamps...');
 
-    // NEW APPROACH: Use raw SQL to bypass ORM completely
+    // Use raw SQL with explicit timestamps
     const parsedMenuItemId = parseInt(menuItemId);
     const parsedDisplayOrder = displayOrder !== undefined ? parseInt(displayOrder) : 0;
+    const now = new Date().toISOString();
     
     const result = await db.execute(
-      sql`INSERT INTO homepage_featured_dishes (menu_item_id, display_order) 
-          VALUES (${parsedMenuItemId}, ${parsedDisplayOrder}) 
+      sql`INSERT INTO homepage_featured_dishes (menu_item_id, display_order, created_at, updated_at) 
+          VALUES (${parsedMenuItemId}, ${parsedDisplayOrder}, ${now}, ${now}) 
           RETURNING *`
     );
 
