@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { homepageFeaturedDishes, menuItems } from '@/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, sql } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -112,37 +112,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Menu item exists, inserting featured dish...');
+    console.log('Menu item exists, inserting with RAW SQL...');
 
-    // Use explicit timestamps for better compatibility
-    const now = new Date();
-    const insertData = {
-      menuItemId: parseInt(menuItemId),
-      displayOrder: displayOrder !== undefined ? parseInt(displayOrder) : 0,
-      createdAt: now,
-      updatedAt: now,
-    };
+    // NEW APPROACH: Use raw SQL to bypass ORM completely
+    const parsedMenuItemId = parseInt(menuItemId);
+    const parsedDisplayOrder = displayOrder !== undefined ? parseInt(displayOrder) : 0;
+    
+    const result = await db.execute(
+      sql`INSERT INTO homepage_featured_dishes (menu_item_id, display_order) 
+          VALUES (${parsedMenuItemId}, ${parsedDisplayOrder}) 
+          RETURNING *`
+    );
 
-    console.log('Insert data:', insertData);
+    console.log('Raw SQL insert successful:', result);
 
-    const newDish = await db
-      .insert(homepageFeaturedDishes)
-      .values(insertData)
-      .returning();
-
-    console.log('Featured dish created:', newDish[0]);
-
-    return NextResponse.json(newDish[0], { status: 201 });
+    return NextResponse.json(result.rows[0], { status: 201 });
   } catch (error: any) {
-    console.error('POST error details:', {
+    console.error('POST error - COMPLETE DETAILS:', {
       message: error.message,
       stack: error.stack,
-      error: error
+      name: error.name,
+      fullError: error
     });
     return NextResponse.json(
       { 
-        error: 'Internal server error', 
-        details: error.message,
+        error: 'Database insert failed', 
+        message: error.message,
         code: 'DATABASE_ERROR'
       },
       { status: 500 }

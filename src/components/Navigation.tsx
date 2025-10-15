@@ -16,23 +16,22 @@ export default function Navigation() {
 
   const handleSignOut = async () => {
     try {
-      const { error } = await authClient.signOut()
-      if (error?.code) {
-        toast.error("Çıkış yapılırken hata oluştu")
-        return
-      }
+      // Clear all cookies manually
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
       
-      // Clear all auth data
-      localStorage.removeItem("bearer_token")
+      // Clear all storage
+      localStorage.clear()
+      sessionStorage.clear()
       
-      // Wait for session to refetch
-      await refetch()
-      
-      // Force full page reload to clear all cached data
+      // Don't wait for anything, just redirect immediately
       window.location.href = "/"
     } catch (error) {
-      console.error("Sign out error:", error)
-      toast.error("Çıkış yapılırken hata oluştu")
+      // Force redirect even on error
+      window.location.href = "/"
     }
   }
 

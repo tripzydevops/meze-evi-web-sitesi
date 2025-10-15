@@ -171,23 +171,83 @@ export default function HomepageAdminPage() {
 
   const handleSignOut = async () => {
     try {
-      const { error } = await authClient.signOut()
-      if (error?.code) {
-        toast.error("Çıkış yapılırken hata oluştu")
-        return
-      }
+      // Clear all cookies manually
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
       
-      // Clear all auth data
-      localStorage.removeItem("bearer_token")
+      // Clear all storage
+      localStorage.clear()
+      sessionStorage.clear()
       
-      // Wait for session to refetch
-      await refetch()
-      
-      // Force full page reload to clear all cached data
+      // Force redirect immediately
       window.location.href = "/"
     } catch (error) {
-      console.error("Sign out error:", error)
-      toast.error("Çıkış yapılırken hata oluştu")
+      window.location.href = "/"
+    }
+  }
+
+  useEffect(() => {
+    if (!isPending && !session?.user) {
+      router.push("/sign-in?redirect=/admin/homepage")
+    }
+  }, [session, isPending, router])
+
+  const isAdmin = session?.user?.role === "admin"
+
+  useEffect(() => {
+    if (session?.user && isAdmin) {
+      fetchAllData()
+    }
+  }, [session, isAdmin])
+
+  const fetchAllData = async () => {
+    setIsLoading(true)
+    try {
+      const [heroRes, featuresRes, featuredSectionRes, dishesRes, aboutRes, menuItemsRes] = await Promise.all([
+        fetch("/api/homepage-hero"),
+        fetch("/api/homepage-features"),
+        fetch("/api/homepage-featured-section"),
+        fetch("/api/homepage-featured-dishes"),
+        fetch("/api/homepage-about-section"),
+        fetch("/api/menu-items")
+      ])
+
+      if (heroRes.ok) {
+        const data = await heroRes.json()
+        setHeroData(data[0] || null)
+      }
+
+      if (featuresRes.ok) {
+        const data = await featuresRes.json()
+        setFeatures(data)
+      }
+
+      if (featuredSectionRes.ok) {
+        const data = await featuredSectionRes.json()
+        setFeaturedSection(data[0] || null)
+      }
+
+      if (dishesRes.ok) {
+        const data = await dishesRes.json()
+        setFeaturedDishes(data)
+      }
+
+      if (aboutRes.ok) {
+        const data = await aboutRes.json()
+        setAboutSection(data[0] || null)
+      }
+
+      if (menuItemsRes.ok) {
+        const data = await menuItemsRes.json()
+        setMenuItems(data)
+      }
+    } catch (error) {
+      toast.error("Veriler yüklenirken hata oluştu")
+    } finally {
+      setIsLoading(false)
     }
   }
 
