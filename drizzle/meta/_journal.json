@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1760360046389,
+      "tag": "0000_tranquil_dragon_lord",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1760360263529,
+      "tag": "0001_broad_pyro",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1760430735342,
+      "tag": "0002_red_sue_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1760436567865,
+      "tag": "0003_conscious_luckman",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1760439109539,
+      "tag": "0004_fair_rafael_vega",
+      "breakpoints": true
+    }
+  ]
+}
