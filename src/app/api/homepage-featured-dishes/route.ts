@@ -98,37 +98,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify menu item exists
-    const menuItemExists = await db
+    // Verify menu item exists and get its data
+    const menuItemResult = await db
       .select()
       .from(menuItems)
       .where(eq(menuItems.id, parseInt(menuItemId)))
       .limit(1);
 
-    if (menuItemExists.length === 0) {
+    if (menuItemResult.length === 0) {
       return NextResponse.json(
         { error: 'Menu item not found', code: 'MENU_ITEM_NOT_FOUND' },
         { status: 404 }
       );
     }
 
-    console.log('Menu item exists, inserting with Drizzle ORM...');
+    console.log('Menu item exists:', menuItemResult[0]);
 
-    // Use Drizzle ORM insert - let it handle timestamps automatically
+    // WORKAROUND: The actual database table has name, description, price fields
+    // that are NOT NULL but are not in the Drizzle schema. We need to use raw SQL
+    // to insert with the actual table structure.
+    const menuItem = menuItemResult[0];
     const parsedMenuItemId = parseInt(menuItemId);
     const parsedDisplayOrder = displayOrder !== undefined ? parseInt(displayOrder) : 0;
     
-    const result = await db
-      .insert(homepageFeaturedDishes)
-      .values({
-        menuItemId: parsedMenuItemId,
-        displayOrder: parsedDisplayOrder,
-      })
-      .returning();
+    const result = await db.execute(
+      sql`INSERT INTO homepage_featured_dishes (menu_item_id, display_order, name, description, price, image_url, created_at, updated_at) 
+          VALUES (${parsedMenuItemId}, ${parsedDisplayOrder}, ${menuItem.name}, ${menuItem.description}, ${menuItem.price}, ${menuItem.imageUrl}, NOW(), NOW()) 
+          RETURNING id, menu_item_id, display_order, created_at, updated_at`
+    );
 
-    console.log('Drizzle insert successful:', result);
+    console.log('Raw SQL insert result structure:', JSON.stringify(result, null, 2));
 
-    return NextResponse.json(result[0], { status: 201 });
+    // Check if result has rows property
+    const insertedRow = result.rows ? result.rows[0] : (Array.isArray(result) ? result[0] : result);
+
+    return NextResponse.json(insertedRow, { status: 201 });
   } catch (error: any) {
     console.error('POST error - COMPLETE DETAILS:', {
       message: error.message,
