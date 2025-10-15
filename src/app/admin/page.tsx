@@ -75,6 +75,16 @@ interface DeleteConfirmation {
   onConfirm: () => void
 }
 
+interface FormData {
+  name: string
+  description: string
+  price: string
+  imageUrl: string
+  categoryId: string
+  popular: boolean
+  newCategoryName?: string
+}
+
 export default function AdminPage() {
   const { data: session, isPending, refetch } = useSession()
   const router = useRouter()
@@ -101,7 +111,8 @@ export default function AdminPage() {
     price: "",
     imageUrl: "",
     categoryId: "",
-    popular: false
+    popular: false,
+    newCategoryName: ""
   })
   const [categoryFormData, setCategoryFormData] = useState({
     name: "",
@@ -118,6 +129,7 @@ export default function AdminPage() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>("")
+  const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false)
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -198,6 +210,9 @@ export default function AdminPage() {
 
   const handleSignOut = async () => {
     try {
+      // Call auth client signOut
+      await authClient.signOut()
+      
       // Clear all cookies manually
       document.cookie.split(";").forEach((c) => {
         document.cookie = c
@@ -209,9 +224,15 @@ export default function AdminPage() {
       localStorage.clear()
       sessionStorage.clear()
       
-      // Force redirect immediately
-      window.location.href = "/"
+      // Refetch session to update state
+      await refetch()
+      
+      // Redirect to home
+      router.push("/")
+      router.refresh()
     } catch (error) {
+      localStorage.clear()
+      sessionStorage.clear()
       window.location.href = "/"
     }
   }
@@ -312,11 +333,13 @@ export default function AdminPage() {
       price: "",
       imageUrl: "",
       categoryId: "",
-      popular: false
+      popular: false,
+      newCategoryName: ""
     })
     setEditingItem(null)
     setSelectedFile(null)
     setPreviewUrl("")
+    setIsCreatingNewCategory(false)
   }
 
   const resetCategoryForm = () => {
@@ -352,9 +375,11 @@ export default function AdminPage() {
       price: item.price || "",
       imageUrl: item.imageUrl || "",
       categoryId: item.categoryId.toString(),
-      popular: item.popular
+      popular: item.popular,
+      newCategoryName: ""
     })
     setPreviewUrl(item.imageUrl || "")
+    setIsCreatingNewCategory(false)
     setIsDialogOpen(true)
   }
 
@@ -596,13 +621,25 @@ export default function AdminPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.name || !formData.categoryId) {
+    if (!formData.name) {
       toast.error("Lütfen zorunlu alanları doldurun")
+      return
+    }
+
+    // Validate category selection or new category name
+    if (!isCreatingNewCategory && !formData.categoryId) {
+      toast.error("Lütfen bir kategori seçin veya yeni kategori oluşturun")
+      return
+    }
+
+    if (isCreatingNewCategory && !formData.newCategoryName?.trim()) {
+      toast.error("Lütfen yeni kategori adı girin")
       return
     }
 
     try {
       let imageUrl = formData.imageUrl
+      let categoryId = formData.categoryId
 
       // Upload image if a new file is selected
       if (selectedFile) {
@@ -614,12 +651,34 @@ export default function AdminPage() {
         }
       }
 
+      // Create new category if needed
+      if (isCreatingNewCategory && formData.newCategoryName?.trim()) {
+        const categoryResponse = await fetch("/api/categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.newCategoryName.trim(),
+            displayOrder: 0
+          })
+        })
+
+        if (categoryResponse.ok) {
+          const newCategory = await categoryResponse.json()
+          categoryId = newCategory.id.toString()
+          toast.success("Yeni kategori oluşturuldu")
+        } else {
+          const error = await categoryResponse.json()
+          toast.error(error.error || "Kategori oluşturulamadı")
+          return
+        }
+      }
+
       const payload = {
         name: formData.name,
         description: formData.description || null,
         price: formData.price || null,
         imageUrl: imageUrl || null,
-        categoryId: parseInt(formData.categoryId),
+        categoryId: parseInt(categoryId),
         popular: formData.popular
       }
 
@@ -1047,23 +1106,59 @@ export default function AdminPage() {
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="category">Kategori *</Label>
-                <Select
-                  value={formData.categoryId}
-                  onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Kategori seçin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(cat => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Kategori *</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4">
+                    <Button
+                      type="button"
+                      variant={!isCreatingNewCategory ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setIsCreatingNewCategory(false)
+                        setFormData({ ...formData, newCategoryName: "" })
+                      }}
+                    >
+                      Mevcut Kategori Seç
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={isCreatingNewCategory ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setIsCreatingNewCategory(true)
+                        setFormData({ ...formData, categoryId: "" })
+                      }}
+                    >
+                      Yeni Kategori Oluştur
+                    </Button>
+                  </div>
+
+                  {!isCreatingNewCategory ? (
+                    <Select
+                      value={formData.categoryId}
+                      onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
+                      required={!isCreatingNewCategory}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Kategori seçin" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id.toString()}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      value={formData.newCategoryName || ""}
+                      onChange={(e) => setFormData({ ...formData, newCategoryName: e.target.value })}
+                      placeholder="Yeni kategori adı girin"
+                      required={isCreatingNewCategory}
+                    />
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">

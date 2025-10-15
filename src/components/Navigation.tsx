@@ -16,6 +16,9 @@ export default function Navigation() {
 
   const handleSignOut = async () => {
     try {
+      // Call auth client signOut
+      await authClient.signOut()
+      
       // Clear all cookies manually
       document.cookie.split(";").forEach((c) => {
         document.cookie = c
@@ -27,10 +30,16 @@ export default function Navigation() {
       localStorage.clear()
       sessionStorage.clear()
       
-      // Don't wait for anything, just redirect immediately
-      window.location.href = "/"
+      // Refetch session to update state
+      await refetch()
+      
+      // Redirect to home
+      router.push("/")
+      router.refresh()
     } catch (error) {
       // Force redirect even on error
+      localStorage.clear()
+      sessionStorage.clear()
       window.location.href = "/"
     }
   }
