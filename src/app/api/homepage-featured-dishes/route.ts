@@ -112,22 +112,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Menu item exists, inserting with RAW SQL including timestamps...');
+    console.log('Menu item exists, inserting with Drizzle ORM...');
 
-    // Use raw SQL with explicit timestamps
+    // Use Drizzle ORM insert - let it handle timestamps automatically
     const parsedMenuItemId = parseInt(menuItemId);
     const parsedDisplayOrder = displayOrder !== undefined ? parseInt(displayOrder) : 0;
-    const now = new Date().toISOString();
     
-    const result = await db.execute(
-      sql`INSERT INTO homepage_featured_dishes (menu_item_id, display_order, created_at, updated_at) 
-          VALUES (${parsedMenuItemId}, ${parsedDisplayOrder}, ${now}, ${now}) 
-          RETURNING *`
-    );
+    const result = await db
+      .insert(homepageFeaturedDishes)
+      .values({
+        menuItemId: parsedMenuItemId,
+        displayOrder: parsedDisplayOrder,
+      })
+      .returning();
 
-    console.log('Raw SQL insert successful:', result);
+    console.log('Drizzle insert successful:', result);
 
-    return NextResponse.json(result.rows[0], { status: 201 });
+    return NextResponse.json(result[0], { status: 201 });
   } catch (error: any) {
     console.error('POST error - COMPLETE DETAILS:', {
       message: error.message,
