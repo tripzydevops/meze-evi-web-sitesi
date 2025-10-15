@@ -189,68 +189,6 @@ export default function HomepageAdminPage() {
     }
   }
 
-  useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push("/sign-in?redirect=/admin/homepage")
-    }
-  }, [session, isPending, router])
-
-  const isAdmin = session?.user?.role === "admin"
-
-  useEffect(() => {
-    if (session?.user && isAdmin) {
-      fetchAllData()
-    }
-  }, [session, isAdmin])
-
-  const fetchAllData = async () => {
-    setIsLoading(true)
-    try {
-      const [heroRes, featuresRes, featuredSectionRes, dishesRes, aboutRes, menuItemsRes] = await Promise.all([
-        fetch("/api/homepage-hero"),
-        fetch("/api/homepage-features"),
-        fetch("/api/homepage-featured-section"),
-        fetch("/api/homepage-featured-dishes"),
-        fetch("/api/homepage-about-section"),
-        fetch("/api/menu-items")
-      ])
-
-      if (heroRes.ok) {
-        const data = await heroRes.json()
-        setHeroData(data[0] || null)
-      }
-
-      if (featuresRes.ok) {
-        const data = await featuresRes.json()
-        setFeatures(data)
-      }
-
-      if (featuredSectionRes.ok) {
-        const data = await featuredSectionRes.json()
-        setFeaturedSection(data[0] || null)
-      }
-
-      if (dishesRes.ok) {
-        const data = await dishesRes.json()
-        setFeaturedDishes(data)
-      }
-
-      if (aboutRes.ok) {
-        const data = await aboutRes.json()
-        setAboutSection(data[0] || null)
-      }
-
-      if (menuItemsRes.ok) {
-        const data = await menuItemsRes.json()
-        setMenuItems(data)
-      }
-    } catch (error) {
-      toast.error("Veriler yüklenirken hata oluştu")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
