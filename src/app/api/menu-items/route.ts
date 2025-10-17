@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
           price: menuItems.price,
           imageUrl: menuItems.imageUrl,
           popular: menuItems.popular,
+          servingSize: menuItems.servingSize,
           createdAt: menuItems.createdAt,
           updatedAt: menuItems.updatedAt,
           category: {
@@ -78,6 +79,7 @@ export async function GET(request: NextRequest) {
         price: menuItems.price,
         imageUrl: menuItems.imageUrl,
         popular: menuItems.popular,
+        servingSize: menuItems.servingSize,
         createdAt: menuItems.createdAt,
         updatedAt: menuItems.updatedAt,
         category: {
@@ -110,7 +112,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { categoryId, name, description, price, imageUrl, popular } = body;
+    const { categoryId, name, description, price, imageUrl, popular, servingSize } = body;
 
     // Validate required fields
     if (!categoryId) {
@@ -164,6 +166,7 @@ export async function POST(request: NextRequest) {
       price: price.trim(),
       imageUrl: imageUrl || null,
       popular: popular === true,
+      servingSize: servingSize && typeof servingSize === 'string' ? servingSize.trim() : null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -193,7 +196,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { categoryId, name, description, price, imageUrl, popular } = body;
+    const { categoryId, name, description, price, imageUrl, popular, servingSize } = body;
 
     // Check if menu item exists
     const existingMenuItem = await db
@@ -270,6 +273,10 @@ export async function PUT(request: NextRequest) {
 
     if (popular !== undefined) {
       updates.popular = popular === true;
+    }
+
+    if (servingSize !== undefined) {
+      updates.servingSize = servingSize && typeof servingSize === 'string' ? servingSize.trim() : null;
     }
 
     // Check if at least one field to update (besides updatedAt)

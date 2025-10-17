@@ -33,6 +33,7 @@ interface MenuItem {
   price: string
   imageUrl: string | null
   popular: boolean
+  servingSize?: string | null
   category?: {
     id: number
     name: string
@@ -79,6 +80,7 @@ interface FormData {
   name: string
   description: string
   price: string
+  servingSize: string
   imageUrl: string
   categoryId: string
   popular: boolean
@@ -109,6 +111,7 @@ export default function AdminPage() {
     name: "",
     description: "",
     price: "",
+    servingSize: "",
     imageUrl: "",
     categoryId: "",
     popular: false,
@@ -331,6 +334,7 @@ export default function AdminPage() {
       name: "",
       description: "",
       price: "",
+      servingSize: "",
       imageUrl: "",
       categoryId: "",
       popular: false,
@@ -373,6 +377,7 @@ export default function AdminPage() {
       name: item.name,
       description: item.description || "",
       price: item.price || "",
+      servingSize: item.servingSize || "",
       imageUrl: item.imageUrl || "",
       categoryId: item.categoryId.toString(),
       popular: item.popular,
@@ -677,6 +682,7 @@ export default function AdminPage() {
         name: formData.name,
         description: formData.description || null,
         price: formData.price || null,
+        servingSize: formData.servingSize || null,
         imageUrl: imageUrl || null,
         categoryId: parseInt(categoryId),
         popular: formData.popular
@@ -838,7 +844,15 @@ export default function AdminPage() {
                                 {item.description}
                               </p>
                             )}
-                            <p className="text-sm font-bold text-primary mt-1">{item.price}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-sm font-bold text-primary">{item.price}</p>
+                              {item.servingSize && (
+                                <>
+                                  <span className="text-xs text-muted-foreground">•</span>
+                                  <p className="text-xs text-muted-foreground">{item.servingSize}</p>
+                                </>
+                              )}
+                            </div>
                           </div>
                           <div className="flex gap-2">
                             <Button
@@ -1191,6 +1205,19 @@ export default function AdminPage() {
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   placeholder="₺55 (opsiyonel)"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="servingSize">Porsiyon Boyutu</Label>
+                <Input
+                  id="servingSize"
+                  value={formData.servingSize}
+                  onChange={(e) => setFormData({ ...formData, servingSize: e.target.value })}
+                  placeholder="500g, 1kg, 5 adet vb."
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ürünün porsiyon boyutunu girin (örn: 500g, 1kg, 5 adet)
+                </p>
               </div>
 
               <div className="space-y-2">

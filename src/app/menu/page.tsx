@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import Navigation from "@/components/Navigation"
 import Footer from "@/components/Footer"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Loader2 } from "lucide-react"
+import { Loader2, Utensils } from "lucide-react"
 
 interface Category {
   id: number
@@ -29,6 +30,7 @@ export default function MenuPage() {
   const [menuCategories, setMenuCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     fetchData()
@@ -57,6 +59,10 @@ export default function MenuPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleImageError = (imageUrl: string) => {
+    setImageErrors(prev => new Set(prev).add(imageUrl))
   }
 
   const shouldShowPrice = (price: string | null) => {
@@ -123,38 +129,42 @@ export default function MenuPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {category.items.map((item, itemIndex) => (
-                    <Card key={itemIndex} className="overflow-hidden group hover:shadow-xl transition-shadow duration-300">
-                      <div className="relative h-48 overflow-hidden">
-                        {item.imageUrl ? (
-                          <Image
-                            src={item.imageUrl}
-                            alt={item.name}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-muted flex items-center justify-center">
-                            <span className="text-muted-foreground">Resim yok</span>
-                          </div>
-                        )}
-                        {item.popular && (
-                          <Badge className="absolute top-3 right-3 bg-primary">
-                            Popüler
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="p-5">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-serif text-xl font-bold">{item.name}</h3>
-                          {shouldShowPrice(item.price) && (
-                            <span className="text-primary font-bold text-lg ml-2">{item.price}</span>
+                    <Link key={itemIndex} href={`/menu/${item.id}`}>
+                      <Card className="overflow-hidden group hover:shadow-xl transition-shadow duration-300 cursor-pointer h-full">
+                        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                          {item.imageUrl && !imageErrors.has(item.imageUrl) ? (
+                            <Image
+                              src={item.imageUrl}
+                              alt={item.name}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              onError={() => handleImageError(item.imageUrl!)}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                              <Utensils className="h-16 w-16 text-primary/30" />
+                            </div>
+                          )}
+                          {item.popular && (
+                            <Badge className="absolute top-3 right-3 bg-primary">
+                              Popüler
+                            </Badge>
                           )}
                         </div>
-                        {item.description && (
-                          <p className="text-muted-foreground text-sm">{item.description}</p>
-                        )}
-                      </div>
-                    </Card>
+                        <div className="p-5">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="font-serif text-xl font-bold">{item.name}</h3>
+                            {shouldShowPrice(item.price) && (
+                              <span className="text-primary font-bold text-lg ml-2">{item.price}</span>
+                            )}
+                          </div>
+                          {item.description && (
+                            <p className="text-muted-foreground text-sm line-clamp-2">{item.description}</p>
+                          )}
+                        </div>
+                      </Card>
+                    </Link>
                   ))}
                 </div>
               )}

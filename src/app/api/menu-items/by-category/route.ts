@@ -14,7 +14,18 @@ export async function GET(request: NextRequest) {
     const groupedData = await Promise.all(
       allCategories.map(async (category) => {
         // Fetch menu items for this category ordered by id DESC
-        const items = await db.select()
+        const items = await db.select({
+          id: menuItems.id,
+          categoryId: menuItems.categoryId,
+          name: menuItems.name,
+          description: menuItems.description,
+          price: menuItems.price,
+          imageUrl: menuItems.imageUrl,
+          popular: menuItems.popular,
+          servingSize: menuItems.servingSize,
+          createdAt: menuItems.createdAt,
+          updatedAt: menuItems.updatedAt,
+        })
           .from(menuItems)
           .where(eq(menuItems.categoryId, category.id))
           .orderBy(desc(menuItems.id));

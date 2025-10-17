@@ -230,34 +230,36 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {featuredDishes.map((dish) => (
-                <Card key={dish.id} className="overflow-hidden group hover:shadow-xl transition-shadow duration-300">
-                  {dish.menuItem.imageUrl && !imageErrors.has(dish.menuItem.imageUrl) ? (
-                    <div className="relative h-40 overflow-hidden bg-muted">
-                      <Image
-                        src={dish.menuItem.imageUrl}
-                        alt={dish.menuItem.name}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-300"
-                        onError={() => handleImageError(dish.menuItem.imageUrl!)}
-                      />
-                    </div>
-                  ) : (
-                    <div className="relative h-40 overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                      <Utensils className="h-12 w-12 text-primary/30" />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-serif text-xl font-bold">{dish.menuItem.name}</h3>
-                      {shouldShowPrice(dish.menuItem.price) && (
-                        <span className="text-primary font-bold text-lg">{dish.menuItem.price}</span>
+                <Link key={dish.id} href={`/menu/${dish.menuItem.id}`}>
+                  <Card className="overflow-hidden group hover:shadow-xl transition-shadow duration-300 cursor-pointer h-full">
+                    {dish.menuItem.imageUrl && !imageErrors.has(dish.menuItem.imageUrl) ? (
+                      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                        <Image
+                          src={dish.menuItem.imageUrl}
+                          alt={dish.menuItem.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                    ) : (
+                      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                        <Utensils className="h-12 w-12 text-primary/30" />
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="font-serif text-xl font-bold">{dish.menuItem.name}</h3>
+                        {shouldShowPrice(dish.menuItem.price) && (
+                          <span className="text-primary font-bold text-lg">{dish.menuItem.price}</span>
+                        )}
+                      </div>
+                      {dish.menuItem.description && (
+                        <p className="text-muted-foreground text-sm line-clamp-2">{dish.menuItem.description}</p>
                       )}
                     </div>
-                    {dish.menuItem.description && (
-                      <p className="text-muted-foreground text-sm">{dish.menuItem.description}</p>
-                    )}
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               ))}
             </div>
 
@@ -276,17 +278,18 @@ export default function Home() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {aboutSection.imageUrl && !imageErrors.has(aboutSection.imageUrl) ? (
-                <div className="relative h-[400px] rounded-lg overflow-hidden bg-muted">
+                <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-muted group">
                   <Image
                     src={aboutSection.imageUrl}
                     alt="Restaurant Interior"
                     fill
-                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                     onError={() => handleImageError(aboutSection.imageUrl!)}
                   />
                 </div>
               ) : (
-                <div className="relative h-[400px] rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
                   <ChefHat className="h-24 w-24 text-primary/30" />
                 </div>
               )}
