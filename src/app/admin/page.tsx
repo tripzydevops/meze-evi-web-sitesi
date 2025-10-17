@@ -1211,12 +1211,19 @@ export default function AdminPage() {
                 <Label htmlFor="servingSize">Porsiyon Boyutu</Label>
                 <Input
                   id="servingSize"
+                  list="serving-size-options"
                   value={formData.servingSize}
                   onChange={(e) => setFormData({ ...formData, servingSize: e.target.value })}
                   placeholder="500g, 1kg, 5 adet vb."
                 />
+                <datalist id="serving-size-options">
+                  <option value="100g" />
+                  <option value="200g" />
+                  <option value="500g" />
+                  <option value="1kg" />
+                </datalist>
                 <p className="text-xs text-muted-foreground">
-                  Ürünün porsiyon boyutunu girin (örn: 500g, 1kg, 5 adet)
+                  Açılır menüden seçin veya manuel olarak yazın (örn: 500g, 1kg, 5 adet)
                 </p>
               </div>
 
