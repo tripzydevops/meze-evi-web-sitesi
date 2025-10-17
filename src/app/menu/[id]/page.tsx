@@ -84,6 +84,17 @@ export default function MenuItemPage() {
     setImageError(true)
   }
 
+  const handleInstagramOrder = () => {
+    const url = 'https://ig.me/m/bispecialmeze'
+    const isInIframe = window.self !== window.top
+    
+    if (isInIframe) {
+      window.parent.postMessage({ type: "OPEN_EXTERNAL_URL", data: { url } }, "*")
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer")
+    }
+  }
+
   const shouldShowPrice = (price: string | null) => {
     if (!price) return false
     const cleanPrice = price.trim().replace(/[₺\s]/g, '')
@@ -216,7 +227,7 @@ export default function MenuItemPage() {
                 <Button 
                   size="lg" 
                   className="flex-1"
-                  onClick={() => window.open('https://ig.me/m/bispecialmeze', '_blank', 'noopener,noreferrer')}
+                  onClick={handleInstagramOrder}
                 >
                   Sipariş Ver
                 </Button>
