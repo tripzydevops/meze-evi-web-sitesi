@@ -39,20 +39,9 @@ export default function MenuPage() {
   const fetchData = async () => {
     setIsLoading(true)
     try {
-      const [categoriesRes, itemsRes] = await Promise.all([
-        fetch("/api/categories"),
-        fetch("/api/menu-items/by-category")
-      ])
-
-      if (categoriesRes.ok) {
-        const categoriesData = await categoriesRes.json()
-        setMenuCategories(categoriesData)
-      }
-
-      if (itemsRes.ok) {
-        const itemsData = await itemsRes.json()
-        setMenuCategories(itemsData)
-      }
+      const res = await fetch("/api/menu-items/by-category")
+      const data = await res.json()
+      setMenuCategories(data)
     } catch (error) {
       console.error("Error fetching menu:", error)
       setError("Menü yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.")
