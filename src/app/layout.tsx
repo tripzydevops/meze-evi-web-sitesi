@@ -17,6 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8316112856772155"
+          crossOrigin="anonymous"
+        />
       <body className="antialiased">
         {children}
         <Toaster />
