@@ -9,6 +9,7 @@ import Navigation from "@/components/Navigation"
 import Footer from "@/components/Footer"
 import { ChefHat, Clock, MapPin, Star, Loader2, Utensils, Heart, Award, Coffee, Users, Sparkles, Instagram, MessageCircle } from "lucide-react"
 import * as LucideIcons from "lucide-react"
+import { shouldShowPrice } from "@/lib/utils"
 
 interface HeroData {
   id: number
@@ -122,11 +123,6 @@ export default function Home() {
     setImageErrors(prev => new Set(prev).add(imageUrl))
   }
 
-  const shouldShowPrice = (price: string | null) => {
-    if (!price) return false
-    const cleanPrice = price.trim().replace(/[₺\s]/g, '')
-    return cleanPrice !== '' && cleanPrice !== '0'
-  }
 
   if (isLoading) {
     return (

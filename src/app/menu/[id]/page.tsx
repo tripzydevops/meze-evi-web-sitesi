@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Loader2, ArrowLeft, Utensils, Package } from "lucide-react"
+import { shouldShowPrice } from "@/lib/utils"
 
 interface MenuItem {
   id: number
@@ -95,11 +96,6 @@ export default function MenuItemPage() {
     }
   }
 
-  const shouldShowPrice = (price: string | null) => {
-    if (!price) return false
-    const cleanPrice = price.trim().replace(/[₺\s]/g, '')
-    return cleanPrice !== '' && cleanPrice !== '0'
-  }
 
   if (isLoading) {
     return (

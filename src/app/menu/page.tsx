@@ -8,6 +8,7 @@ import Footer from "@/components/Footer"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Utensils } from "lucide-react"
+import { shouldShowPrice } from "@/lib/utils"
 
 interface Category {
   id: number
@@ -65,11 +66,6 @@ export default function MenuPage() {
     setImageErrors(prev => new Set(prev).add(imageUrl))
   }
 
-  const shouldShowPrice = (price: string | null) => {
-    if (!price) return false
-    const cleanPrice = price.trim().replace(/[₺\s]/g, '')
-    return cleanPrice !== '' && cleanPrice !== '0'
-  }
 
   return (
     <div className="min-h-screen">
