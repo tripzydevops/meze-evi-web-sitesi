@@ -942,6 +942,7 @@ export default function AdminPage() {
                           <Button
                             variant="destructive"
                             size="sm"
+                            className="!bg-red-600 !text-white hover:!bg-red-700"
                             onClick={() => handleDeleteCategory(category.id)}
                             title="Kalıcı olarak sil"
                           >
