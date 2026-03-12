@@ -5,9 +5,10 @@ import { eq, asc, desc } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all categories ordered by displayOrder
+    // Fetch all non-hidden categories ordered by displayOrder
     const allCategories = await db.select()
       .from(categories)
+      .where(eq(categories.hidden, false))
       .orderBy(asc(categories.displayOrder));
 
     // Build the grouped response

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { homepageFeaturedDishes, menuItems } from '@/db/schema';
-import { eq, asc, sql } from 'drizzle-orm';
+import { homepageFeaturedDishes, menuItems, categories } from '@/db/schema';
+import { eq, asc, sql, and } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,7 +35,13 @@ export async function GET(request: NextRequest) {
         })
         .from(homepageFeaturedDishes)
         .leftJoin(menuItems, eq(homepageFeaturedDishes.menuItemId, menuItems.id))
-        .where(eq(homepageFeaturedDishes.id, parseInt(id)))
+        .leftJoin(categories, eq(menuItems.categoryId, categories.id))
+        .where(
+          and(
+            eq(homepageFeaturedDishes.id, parseInt(id)),
+            eq(categories.hidden, false)
+          )
+        )
         .limit(1);
 
       if (dish.length === 0) {
@@ -70,6 +76,8 @@ export async function GET(request: NextRequest) {
       })
       .from(homepageFeaturedDishes)
       .leftJoin(menuItems, eq(homepageFeaturedDishes.menuItemId, menuItems.id))
+      .leftJoin(categories, eq(menuItems.categoryId, categories.id))
+      .where(eq(categories.hidden, false))
       .orderBy(asc(homepageFeaturedDishes.displayOrder))
       .limit(limit)
       .offset(offset);
@@ -130,7 +138,7 @@ export async function POST(request: NextRequest) {
     console.log('Raw SQL insert result structure:', JSON.stringify(result, null, 2));
 
     // Check if result has rows property
-    const insertedRow = result.rows ? result.rows[0] : (Array.isArray(result) ? result[0] : result);
+    const insertedRow = (result as any).rows ? (result as any).rows[0] : (Array.isArray(result) ? result[0] : result);
 
     return NextResponse.json(insertedRow, { status: 201 });
   } catch (error: any) {

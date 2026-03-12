@@ -108,15 +108,9 @@ export default function MenuPage() {
             </div>
           )}
 
-          {!isLoading && !error && menuCategories.length === 0 && (
-            <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">
-                Henüz menü öğesi eklenmemiş.
-              </p>
-            </div>
-          )}
-
-          {!isLoading && !error && menuCategories.map((category, categoryIndex) => (
+          {!isLoading && !error && menuCategories
+            .filter(category => !(category as any).hidden)
+            .map((category, categoryIndex) => (
             <div key={categoryIndex} className="mb-16">
               <h2 className="font-serif text-3xl md:text-4xl font-bold mb-8 text-center">
                 {category.name}
@@ -170,6 +164,7 @@ export default function MenuPage() {
               )}
             </div>
           ))}
+
         </div>
       </section>
 
