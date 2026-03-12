@@ -23,7 +23,11 @@ export async function GET(request: NextRequest) {
       const record = await db
         .select()
         .from(contactInfo)
-        .where(eq(contactInfo.id, parseInt(id)))
+        .where(
+          showHidden 
+            ? eq(contactInfo.id, parseInt(id))
+            : and(eq(contactInfo.id, parseInt(id)), eq(contactInfo.hidden, false))
+        )
         .limit(1);
 
       if (record.length === 0) {

@@ -40,7 +40,12 @@ export async function GET(request: NextRequest) {
         })
         .from(menuItems)
         .leftJoin(categories, eq(menuItems.categoryId, categories.id))
-        .where(eq(menuItems.id, parseInt(id)))
+        .where(
+          and(
+            eq(menuItems.id, parseInt(id)),
+            eq(categories.hidden, false)
+          )
+        )
         .limit(1);
 
       if (result.length === 0) {
@@ -69,6 +74,9 @@ export async function GET(request: NextRequest) {
     if (popular === 'true') {
       whereConditions.push(eq(menuItems.popular, true));
     }
+
+    // Always filter out items from hidden categories for public requests
+    whereConditions.push(eq(categories.hidden, false));
 
     let query = db
       .select({
