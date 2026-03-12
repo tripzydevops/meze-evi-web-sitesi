@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { contactInfo } from '@/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, and } from 'drizzle-orm';
 
 const VALID_TYPES = ['address', 'phone', 'email', 'hours'] as const;
 
