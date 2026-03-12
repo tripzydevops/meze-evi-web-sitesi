@@ -102,10 +102,11 @@ export default function HomepageAdminPage() {
   const [isFeatureDialogOpen, setIsFeatureDialogOpen] = useState(false)
   const [isDishDialogOpen, setIsDishDialogOpen] = useState(false)
 
-  // Image upload states
+  // Image upload states per section
+  const [heroImage, setHeroImage] = useState<{ file: File | null, preview: string }>({ file: null, preview: "" })
+  const [aboutImage, setAboutImage] = useState<{ file: File | null, preview: string }>({ file: null, preview: "" })
+  const [dishPreview, setDishPreview] = useState<string>("")
   const [uploadingImage, setUploadingImage] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string>("")
 
   useEffect(() => {
     if (!isPending && !session?.user) {
@@ -113,7 +114,7 @@ export default function HomepageAdminPage() {
     }
   }, [session, isPending, router])
 
-  const isAdmin = session?.user?.role === "admin"
+  const isAdmin = (session?.user as any)?.role === "admin"
 
   useEffect(() => {
     if (session?.user && isAdmin) {
@@ -169,6 +170,30 @@ export default function HomepageAdminPage() {
     }
   }
 
+  const handleHeroImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      toast.error("Lütfen bir resim dosyası seçin")
+      return
+    }
+    const reader = new FileReader()
+    reader.onloadend = () => setHeroImage({ file, preview: reader.result as string })
+    reader.readAsDataURL(file)
+  }
+
+  const handleAboutImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      toast.error("Lütfen bir resim dosyası seçin")
+      return
+    }
+    const reader = new FileReader()
+    reader.onloadend = () => setAboutImage({ file, preview: reader.result as string })
+    reader.readAsDataURL(file)
+  }
+
   const handleSignOut = async () => {
     try {
       // Clear all cookies manually
@@ -189,36 +214,11 @@ export default function HomepageAdminPage() {
     }
   }
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Lütfen bir resim dosyası seçin")
-      return
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Dosya boyutu 5MB'dan küçük olmalıdır")
-      return
-    }
-
-    setSelectedFile(file)
-    
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleUploadImage = async () => {
-    if (!selectedFile) return null
-
+  const handleUploadImage = async (file: File) => {
     setUploadingImage(true)
     try {
       const formData = new FormData()
-      formData.append("file", selectedFile)
+      formData.append("file", file)
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -247,8 +247,8 @@ export default function HomepageAdminPage() {
     try {
       let imageUrl = formData.get("backgroundImageUrl") as string
       
-      if (selectedFile) {
-        const uploadedUrl = await handleUploadImage()
+      if (heroImage.file) {
+        const uploadedUrl = await handleUploadImage(heroImage.file)
         if (uploadedUrl) {
           imageUrl = uploadedUrl
         } else {
@@ -274,8 +274,7 @@ export default function HomepageAdminPage() {
 
       if (response.ok) {
         toast.success("Hero bölümü güncellendi")
-        setSelectedFile(null)
-        setPreviewUrl("")
+        setHeroImage({ file: null, preview: "" })
         fetchAllData()
       } else {
         toast.error("Güncelleme başarısız")
@@ -381,7 +380,7 @@ export default function HomepageAdminPage() {
   // Featured Dish Handlers
   const openDishDialog = (dish?: FeaturedDish) => {
     setEditingDish(dish || null)
-    setPreviewUrl("")
+    setDishPreview("")
     setIsDishDialogOpen(true)
   }
 
@@ -422,7 +421,7 @@ export default function HomepageAdminPage() {
         toast.success(editingDish ? "Yemek güncellendi" : "Yemek eklendi")
         setIsDishDialogOpen(false)
         setEditingDish(null)
-        setPreviewUrl("")
+        setDishPreview("")
         fetchAllData()
       } else {
         const error = await response.json()
@@ -460,8 +459,8 @@ export default function HomepageAdminPage() {
     try {
       let imageUrl = formData.get("imageUrl") as string
       
-      if (selectedFile) {
-        const uploadedUrl = await handleUploadImage()
+      if (aboutImage.file) {
+        const uploadedUrl = await handleUploadImage(aboutImage.file)
         if (uploadedUrl) {
           imageUrl = uploadedUrl
         } else {
@@ -485,8 +484,7 @@ export default function HomepageAdminPage() {
 
       if (response.ok) {
         toast.success("Hakkımızda bölümü güncellendi")
-        setSelectedFile(null)
-        setPreviewUrl("")
+        setAboutImage({ file: null, preview: "" })
         fetchAllData()
       } else {
         toast.error("Güncelleme başarısız")
@@ -636,10 +634,10 @@ export default function HomepageAdminPage() {
 
                     <div className="space-y-2">
                       <Label>Arka Plan Resmi</Label>
-                      {previewUrl || heroData.backgroundImageUrl ? (
+                      {heroImage.preview || heroData.backgroundImageUrl ? (
                         <div className="relative w-full h-48 border rounded-lg overflow-hidden">
                           <Image
-                            src={previewUrl || heroData.backgroundImageUrl || ""}
+                            src={heroImage.preview || heroData.backgroundImageUrl || ""}
                             alt="Background"
                             fill
                             className="object-cover"
@@ -650,8 +648,7 @@ export default function HomepageAdminPage() {
                             size="icon"
                             className="absolute top-2 right-2"
                             onClick={() => {
-                              setPreviewUrl("")
-                              setSelectedFile(null)
+                              setHeroImage({ file: null, preview: "" })
                             }}
                           >
                             <X className="h-4 w-4" />
@@ -663,7 +660,7 @@ export default function HomepageAdminPage() {
                           <Input
                             type="file"
                             accept="image/*"
-                            onChange={handleFileSelect}
+                            onChange={handleHeroImageSelect}
                           />
                         </div>
                       )}
@@ -672,6 +669,11 @@ export default function HomepageAdminPage() {
                         name="backgroundImageUrl"
                         defaultValue={heroData.backgroundImageUrl || ""}
                         placeholder="Veya resim URL'si girin"
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            setHeroImage({ file: null, preview: e.target.value })
+                          }
+                        }}
                       />
                     </div>
 
@@ -835,7 +837,8 @@ export default function HomepageAdminPage() {
                       <Input
                         id="aboutTitle"
                         name="title"
-                        defaultValue={aboutSection.title}
+                        value={aboutSection.title}
+                        onChange={(e) => setAboutSection({ ...aboutSection, title: e.target.value })}
                         required
                       />
                     </div>
@@ -845,7 +848,8 @@ export default function HomepageAdminPage() {
                       <Textarea
                         id="aboutDescription"
                         name="description"
-                        defaultValue={aboutSection.description}
+                        value={aboutSection.description}
+                        onChange={(e) => setAboutSection({ ...aboutSection, description: e.target.value })}
                         rows={6}
                         required
                       />
@@ -853,10 +857,10 @@ export default function HomepageAdminPage() {
 
                     <div className="space-y-2">
                       <Label>Resim</Label>
-                      {previewUrl || aboutSection.imageUrl ? (
+                      {aboutImage.preview || aboutSection.imageUrl ? (
                         <div className="relative w-full h-48 border rounded-lg overflow-hidden">
                           <Image
-                            src={previewUrl || aboutSection.imageUrl || ""}
+                            src={aboutImage.preview || aboutSection.imageUrl || ""}
                             alt="About"
                             fill
                             className="object-cover"
@@ -867,8 +871,7 @@ export default function HomepageAdminPage() {
                             size="icon"
                             className="absolute top-2 right-2"
                             onClick={() => {
-                              setPreviewUrl("")
-                              setSelectedFile(null)
+                              setAboutImage({ file: null, preview: "" })
                             }}
                           >
                             <X className="h-4 w-4" />
@@ -880,14 +883,15 @@ export default function HomepageAdminPage() {
                           <Input
                             type="file"
                             accept="image/*"
-                            onChange={handleFileSelect}
+                            onChange={handleAboutImageSelect}
                           />
                         </div>
                       )}
                       <Input
                         id="aboutImageUrl"
                         name="imageUrl"
-                        defaultValue={aboutSection.imageUrl || ""}
+                        value={aboutSection.imageUrl || ""}
+                        onChange={(e) => setAboutSection({ ...aboutSection, imageUrl: e.target.value })}
                         placeholder="Veya resim URL'si girin"
                       />
                     </div>
@@ -898,7 +902,8 @@ export default function HomepageAdminPage() {
                         <Input
                           id="aboutButtonText"
                           name="buttonText"
-                          defaultValue={aboutSection.buttonText || ""}
+                          value={aboutSection.buttonText || ""}
+                          onChange={(e) => setAboutSection({ ...aboutSection, buttonText: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
@@ -906,7 +911,8 @@ export default function HomepageAdminPage() {
                         <Input
                           id="aboutButtonLink"
                           name="buttonLink"
-                          defaultValue={aboutSection.buttonLink || ""}
+                          value={aboutSection.buttonLink || ""}
+                          onChange={(e) => setAboutSection({ ...aboutSection, buttonLink: e.target.value })}
                         />
                       </div>
                     </div>
@@ -1018,9 +1024,9 @@ export default function HomepageAdminPage() {
                   onValueChange={(value) => {
                     const selectedItem = menuItems.find(item => item.id === parseInt(value))
                     if (selectedItem?.imageUrl) {
-                      setPreviewUrl(selectedItem.imageUrl)
+                      setDishPreview(selectedItem.imageUrl)
                     } else {
-                      setPreviewUrl("")
+                      setDishPreview("")
                     }
                   }}
                 >
@@ -1040,12 +1046,12 @@ export default function HomepageAdminPage() {
                 </Select>
               </div>
 
-              {previewUrl && (
+              {dishPreview && (
                 <div className="space-y-2">
                   <Label>Önizleme</Label>
                   <div className="relative w-full h-48 border rounded-lg overflow-hidden">
                     <Image
-                      src={previewUrl}
+                      src={dishPreview}
                       alt="Preview"
                       fill
                       className="object-cover"
@@ -1076,7 +1082,7 @@ export default function HomepageAdminPage() {
                 onClick={() => {
                   setIsDishDialogOpen(false)
                   setEditingDish(null)
-                  setPreviewUrl("")
+                  setDishPreview("")
                 }}
               >
                 İptal
