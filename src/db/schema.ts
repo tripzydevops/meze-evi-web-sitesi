@@ -17,6 +17,7 @@ export const menuItems = pgTable('menu_items', {
   price: varchar('price', { length: 50 }),
   imageUrl: text('image_url'),
   popular: boolean('popular').default(false),
+  hidden: boolean('hidden').default(false),
   servingSize: varchar('serving_size', { length: 100 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),

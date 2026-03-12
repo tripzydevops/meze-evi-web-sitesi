@@ -16,8 +16,19 @@ export default function Navigation() {
 
   const handleSignOut = async () => {
     try {
-      // Call auth client signOut
-      await authClient.signOut()
+      await authClient.signOut({
+        fetchOptions: {
+          auth: {
+            type: "Bearer",
+            token: localStorage.getItem("bearer_token") || "",
+          },
+        },
+      })
+      
+      // Clear all storage
+      localStorage.removeItem("bearer_token")
+      localStorage.clear()
+      sessionStorage.clear()
       
       // Clear all cookies manually
       document.cookie.split(";").forEach((c) => {
@@ -25,19 +36,11 @@ export default function Navigation() {
           .replace(/^ +/, "")
           .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
-      
-      // Clear all storage
-      localStorage.clear()
-      sessionStorage.clear()
-      
-      // Refetch session to update state
-      await refetch()
-      
-      // Redirect to home
-      router.push("/")
-      router.refresh()
+
+      // Redirect to home and force a reload to clear state
+      window.location.href = "/"
     } catch (error) {
-      // Force redirect even on error
+      console.error("Sign out error:", error)
       localStorage.clear()
       sessionStorage.clear()
       window.location.href = "/"
@@ -45,7 +48,7 @@ export default function Navigation() {
   }
 
   // Check if user is admin
-  const isAdmin = session?.user?.role === "admin"
+  const isAdmin = (session?.user as any)?.role === "admin"
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">

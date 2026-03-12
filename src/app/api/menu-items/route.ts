@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get('id');
     const categoryId = searchParams.get('category_id');
     const popular = searchParams.get('popular');
+    const showHidden = searchParams.get('showHidden') === 'true';
     const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
     const offset = parseInt(searchParams.get('offset') || '0');
 
@@ -30,6 +31,7 @@ export async function GET(request: NextRequest) {
           price: menuItems.price,
           imageUrl: menuItems.imageUrl,
           popular: menuItems.popular,
+          hidden: menuItems.hidden,
           servingSize: menuItems.servingSize,
           createdAt: menuItems.createdAt,
           updatedAt: menuItems.updatedAt,
@@ -43,7 +45,8 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(menuItems.id, parseInt(id)),
-            eq(categories.hidden, false)
+            showHidden ? undefined : eq(menuItems.hidden, false),
+            showHidden ? undefined : eq(categories.hidden, false)
           )
         )
         .limit(1);
@@ -75,8 +78,11 @@ export async function GET(request: NextRequest) {
       whereConditions.push(eq(menuItems.popular, true));
     }
 
-    // Always filter out items from hidden categories for public requests
-    whereConditions.push(eq(categories.hidden, false));
+    // For public requests, hide items from hidden categories or items marked as hidden
+    if (!showHidden) {
+      whereConditions.push(eq(categories.hidden, false));
+      whereConditions.push(eq(menuItems.hidden, false));
+    }
 
     let query = db
       .select({
@@ -87,6 +93,7 @@ export async function GET(request: NextRequest) {
         price: menuItems.price,
         imageUrl: menuItems.imageUrl,
         popular: menuItems.popular,
+        hidden: menuItems.hidden,
         servingSize: menuItems.servingSize,
         createdAt: menuItems.createdAt,
         updatedAt: menuItems.updatedAt,
@@ -120,7 +127,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { categoryId, name, description, price, imageUrl, popular, servingSize } = body;
+    const { categoryId, name, description, price, imageUrl, popular, hidden, servingSize } = body;
 
     // Validate required fields
     if (!categoryId) {
@@ -174,6 +181,7 @@ export async function POST(request: NextRequest) {
       price: price.trim(),
       imageUrl: imageUrl || null,
       popular: popular === true,
+      hidden: hidden === true,
       servingSize: servingSize && typeof servingSize === 'string' ? servingSize.trim() : null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -204,7 +212,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { categoryId, name, description, price, imageUrl, popular, servingSize } = body;
+    const { categoryId, name, description, price, imageUrl, popular, hidden, servingSize } = body;
 
     // Check if menu item exists
     const existingMenuItem = await db
@@ -281,6 +289,10 @@ export async function PUT(request: NextRequest) {
 
     if (popular !== undefined) {
       updates.popular = popular === true;
+    }
+
+    if (hidden !== undefined) {
+      updates.hidden = hidden === true;
     }
 
     if (servingSize !== undefined) {

@@ -33,6 +33,7 @@ interface MenuItem {
   price: string
   imageUrl: string | null
   popular: boolean
+  hidden: boolean
   servingSize?: string | null
   category?: {
     id: number
@@ -84,6 +85,7 @@ interface FormData {
   imageUrl: string
   categoryId: string
   popular: boolean
+  hidden: boolean
   newCategoryName?: string
 }
 
@@ -115,6 +117,7 @@ export default function AdminPage() {
     imageUrl: "",
     categoryId: "",
     popular: false,
+    hidden: false,
     newCategoryName: ""
   })
   const [categoryFormData, setCategoryFormData] = useState({
@@ -143,7 +146,7 @@ export default function AdminPage() {
 
   // Check if user is admin
   // @ts-ignore - session.user type from better-auth doesn't include role by default in client-side types
-  const isAdmin = session?.user?.role === "admin"
+  const isAdmin = (session?.user as any)?.role === "admin"
 
   useEffect(() => {
     if (session?.user) {
@@ -214,27 +217,28 @@ export default function AdminPage() {
 
   const handleSignOut = async () => {
     try {
-      // Call auth client signOut
-      await authClient.signOut()
+      await authClient.signOut({
+        fetchOptions: {
+          auth: {
+            type: "Bearer",
+            token: localStorage.getItem("bearer_token") || "",
+          },
+        },
+      })
       
-      // Clear all cookies manually
+      localStorage.removeItem("bearer_token")
+      localStorage.clear()
+      sessionStorage.clear()
+      
       document.cookie.split(";").forEach((c) => {
         document.cookie = c
           .replace(/^ +/, "")
           .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
-      
-      // Clear all storage
-      localStorage.clear()
-      sessionStorage.clear()
-      
-      // Refetch session to update state
-      await refetch()
-      
-      // Redirect to home
-      router.push("/")
-      router.refresh()
+
+      window.location.href = "/"
     } catch (error) {
+      console.error("Sign out error:", error)
       localStorage.clear()
       sessionStorage.clear()
       window.location.href = "/"
@@ -313,6 +317,29 @@ export default function AdminPage() {
     }
   }
 
+  const handleToggleMenuItemHidden = async (item: MenuItem) => {
+    try {
+      const response = await fetch(`/api/menu-items?id=${item.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hidden: !item.hidden })
+      })
+
+      if (response.ok) {
+        toast.success(item.hidden ? "Öğe gösterildi" : "Öğe gizlendi")
+        setMenuItems(prev => prev.map(m => 
+          m.id === item.id ? { ...m, hidden: !m.hidden } : m
+        ))
+        fetchData()
+      } else {
+        const error = await response.json()
+        toast.error(error.error || "İşlem başarısız")
+      }
+    } catch (error) {
+      toast.error("Bir hata oluştu")
+    }
+  }
+
   const handleToggleContactHidden = async (contact: ContactInfo) => {
     try {
       const response = await fetch(`/api/contact-info?id=${contact.id}`, {
@@ -342,6 +369,7 @@ export default function AdminPage() {
       imageUrl: "",
       categoryId: "",
       popular: false,
+      hidden: false,
       newCategoryName: ""
     })
     setEditingItem(null)
@@ -385,6 +413,7 @@ export default function AdminPage() {
       imageUrl: item.imageUrl || "",
       categoryId: item.categoryId.toString(),
       popular: item.popular,
+      hidden: item.hidden,
       newCategoryName: ""
     })
     setPreviewUrl(item.imageUrl || "")
@@ -823,7 +852,10 @@ export default function AdminPage() {
                   ) : (
                     <div className="space-y-3">
                       {items.map(item => (
-                        <div key={item.id} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div 
+                          key={item.id} 
+                          className={`flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors ${item.hidden ? "opacity-60 border-dashed bg-muted/20" : ""}`}
+                        >
                           {item.imageUrl && (
                             <div className="relative h-16 w-16 flex-shrink-0">
                               <Image
@@ -859,6 +891,18 @@ export default function AdminPage() {
                             </div>
                           </div>
                           <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleToggleMenuItemHidden(item)}
+                              title={item.hidden ? "Göster" : "Gizle"}
+                            >
+                              {item.hidden ? (
+                                <Eye className="h-4 w-4" />
+                              ) : (
+                                <EyeOff className="h-4 w-4" />
+                              )}
+                            </Button>
                             <Button
                               variant="outline"
                               size="sm"
@@ -1285,17 +1329,32 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="popular"
-                  checked={formData.popular}
-                  onCheckedChange={(checked) => 
-                    setFormData({ ...formData, popular: checked as boolean })
-                  }
-                />
-                <Label htmlFor="popular" className="font-normal cursor-pointer">
-                  Popüler olarak işaretle
-                </Label>
+              <div className="flex flex-wrap gap-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="popular"
+                    checked={formData.popular}
+                    onCheckedChange={(checked) => 
+                      setFormData({ ...formData, popular: checked as boolean })
+                    }
+                  />
+                  <Label htmlFor="popular" className="font-normal cursor-pointer">
+                    Popüler olarak işaretle
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="hidden"
+                    checked={formData.hidden}
+                    onCheckedChange={(checked) => 
+                      setFormData({ ...formData, hidden: checked as boolean })
+                    }
+                  />
+                  <Label htmlFor="hidden" className="font-normal cursor-pointer text-destructive font-medium">
+                    Gizle (Müşteriler görmesin)
+                  </Label>
+                </div>
               </div>
             </div>
 
