@@ -149,6 +149,7 @@ export default function AdminPage() {
   const isAdmin = (session?.user as any)?.role === "admin"
 
   useEffect(() => {
+    console.log("Admin Panel v1.0.2 - Visibility toggles active")
     if (session?.user) {
       fetchData()
     }
@@ -885,24 +886,7 @@ export default function AdminPage() {
                               {item.servingSize && (
                                 <>
                                   <span className="text-xs text-muted-foreground">•</span>
-                                  <p className="text-xs text-muted-foreground">{item.servingSize}</p>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleToggleMenuItemHidden(item)}
-                              title={item.hidden ? "Göster" : "Gizle"}
-                            >
-                              {item.hidden ? (
-                                <Eye className="h-4 w-4" />
-                              ) : (
-                                <EyeOff className="h-4 w-4" />
-                              )}
-                            </Button>
+                                  <p className="text-xs                           <div className="flex gap-2">
                             <Button
                               variant="outline"
                               size="sm"
@@ -913,7 +897,25 @@ export default function AdminPage() {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => handleToggleMenuItemHidden(item)}
+                              title={item.hidden ? "Göster" : "Gizle"}
+                              className={item.hidden ? "text-primary hover:text-primary" : "text-muted-foreground hover:text-destructive"}
+                            >
+                              {item.hidden ? (
+                                <Eye className="h-4 w-4" />
+                              ) : (
+                                <EyeOff className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleDelete(item.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+handleDelete(item.id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
