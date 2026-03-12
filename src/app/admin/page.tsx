@@ -142,6 +142,7 @@ export default function AdminPage() {
   }, [session, isPending, router])
 
   // Check if user is admin
+  // @ts-ignore - session.user type from better-auth doesn't include role by default in client-side types
   const isAdmin = session?.user?.role === "admin"
 
   useEffect(() => {
@@ -299,6 +300,9 @@ export default function AdminPage() {
 
       if (response.ok) {
         toast.success(category.hidden ? "Kategori gösterildi" : "Kategori gizlendi")
+        setCategories(prev => prev.map(c => 
+          c.id === category.id ? { ...c, hidden: !c.hidden } : c
+        ))
         fetchData()
       } else {
         const error = await response.json()
@@ -757,7 +761,7 @@ export default function AdminPage() {
 
   const groupedItems = categories.map(category => ({
     category,
-    items: menuItems.filter(item => item.categoryId === category.id)
+    items: menuItems.filter(item => Number(item.categoryId) === Number(category.id))
   }))
 
   const contactTypeOptions = [
@@ -898,7 +902,7 @@ export default function AdminPage() {
                 </Card>
               ) : (
                 categories.map(category => {
-                  const itemCount = menuItems.filter(item => item.categoryId === category.id).length
+                  const itemCount = menuItems.filter(item => Number(item.categoryId) === Number(category.id)).length
                   return (
                     <Card key={category.id} className={category.hidden ? "opacity-60 border-dashed" : ""}>
                       <CardContent className="flex items-center justify-between p-6">
@@ -939,8 +943,7 @@ export default function AdminPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteCategory(category.id)}
-                            disabled={itemCount > 0}
-                            title={itemCount > 0 ? "Kategoride öğe varken silinemez" : "Kalıcı olarak sil"}
+                            title="Kalıcı olarak sil"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
