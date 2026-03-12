@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { menuItems, categories } from '@/db/schema';
-import { eq, asc, desc } from 'drizzle-orm';
+import { eq, asc, desc, and } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
           updatedAt: menuItems.updatedAt,
         })
           .from(menuItems)
-          .where(eq(menuItems.categoryId, category.id))
+          .where(and(eq(menuItems.categoryId, category.id), eq(menuItems.hidden, false)))
           .orderBy(desc(menuItems.id));
 
         return {

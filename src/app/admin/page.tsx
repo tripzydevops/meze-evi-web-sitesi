@@ -886,7 +886,12 @@ export default function AdminPage() {
                               {item.servingSize && (
                                 <>
                                   <span className="text-xs text-muted-foreground">•</span>
-                                  <p className="text-xs                           <div className="flex gap-2">
+                                  <p className="text-xs text-muted-foreground">{item.servingSize}</p>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                            <div className="flex gap-2">
                             <Button
                               variant="outline"
                               size="sm"
@@ -913,11 +918,6 @@ export default function AdminPage() {
                               onClick={() => handleDelete(item.id)}
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-handleDelete(item.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
