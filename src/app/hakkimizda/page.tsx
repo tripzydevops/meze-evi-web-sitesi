@@ -1,12 +1,42 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Navigation from "@/components/Navigation"
 import Footer from "@/components/Footer"
 import { Card } from "@/components/ui/card"
-import { Heart, Users, Award, Leaf } from "lucide-react"
+import { Heart, Users, Award, Leaf, ChefHat, Loader2 } from "lucide-react"
+
+interface AboutSection {
+  id: number
+  title: string
+  description: string
+  imageUrl: string | null
+  buttonText: string | null
+  buttonLink: string | null
+}
 
 export default function AboutPage() {
+  const [aboutSection, setAboutSection] = useState<AboutSection | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/homepage-about-section")
+        if (response.ok) {
+          const data = await response.json()
+          setAboutSection(data[0] || null)
+        }
+      } catch (error) {
+        console.error("Error fetching about section:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
   const values = [
     {
       icon: Heart,
@@ -30,6 +60,14 @@ export default function AboutPage() {
     }
   ]
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -38,10 +76,11 @@ export default function AboutPage() {
       <section className="relative h-[400px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/57301c9a-a814-4a2b-ba96-680af3e8128d/generated_images/cozy-turkish-restaurant-interior%2c-warm-a6bd77e8-20251014104025.jpg"
+            src={aboutSection?.imageUrl || "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/57301c9a-a814-4a2b-ba96-680af3e8128d/generated_images/cozy-turkish-restaurant-interior%2c-warm-a6bd77e8-20251014104025.jpg"}
             alt="Bispecial Meze"
             fill
             className="object-cover brightness-50"
+            priority
           />
         </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
@@ -58,31 +97,25 @@ export default function AboutPage() {
       <section className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <h2 className="font-serif text-4xl font-bold mb-6 text-center">
-              Hikayemiz
+            <h2 className="font-serif text-4xl font-bold mb-8 text-center">
+              {aboutSection?.title || "Hikayemiz"}
             </h2>
-            <div className="space-y-6 text-muted-foreground text-lg leading-relaxed">
-              <p>
-                Bispecial Meze, Türk mutfak kültürünün en değerli hazinelerinden biri olan meze 
-                geleneğini yaşatmak ve modern bir anlayışla sunmak amacıyla 2020 yılında kuruldu. 
-                Kurucularımızın Anadolu'nun farklı bölgelerinden getirdiği özgün tarifler, 
-                restoranımızın temelini oluşturuyor.
-              </p>
-              <p>
-                Her bir mezemiz, nesiller boyu aktarılan geleneksel yöntemlerle hazırlanıyor. 
-                Ancak biz sadece geçmişin tariflerini takip etmekle kalmıyor, aynı zamanda 
-                modern sunum teknikleri ve yaratıcı yaklaşımlarla bu lezzetleri yeniden yorumluyoruz.
-              </p>
-              <p>
-                Mutfağımızda sadece yemek pişirmiyoruz; bir kültürü, bir mirası ve sayısız anıyı 
-                tabağa aktarıyoruz. Her meze, Anadolu'nun farklı bir köşesinden gelen bir hikaye 
-                taşıyor. Bu hikayeleri sizlerle paylaşmak, bizim için bir onur.
-              </p>
-              <p>
-                Günlük olarak yerel pazarlardan aldığımız taze sebzeler, organik zeytinyağı ve 
-                özenle seçilmiş baharatlarla hazırladığımız mezelerimiz, sağlıklı beslenmenin ve 
-                lezzetin birleşimini sunuyor.
-              </p>
+            <div className="space-y-6 text-muted-foreground text-lg leading-relaxed whitespace-pre-line">
+              {aboutSection?.description || (
+                <>
+                  <p>
+                    Bispecial Meze, Türk mutfak kültürünün en değerli hazinelerinden biri olan meze 
+                    geleneğini yaşatmak ve modern bir anlayışla sunmak amacıyla 2020 yılında kuruldu. 
+                    Kurucularımızın Anadolu'nun farklı bölgelerinden getirdiği özgün tarifler, 
+                    restoranımızın temelini oluşturuyor.
+                  </p>
+                  <p>
+                    Her bir mezemiz, nesiller boyu aktarılan geleneksel yöntemlerle hazırlanıyor. 
+                    Ancak biz sadece geçmişin tariflerini takip etmekle kalmıyor, aynı zamanda 
+                    modern sunum teknikleri ve yaratıcı yaklaşımlarla bu lezzetleri yeniden yorumluyoruz.
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -160,7 +160,7 @@ export default function AdminPage() {
     try {
       const [categoriesRes, itemsRes, contactRes, usersRes] = await Promise.all([
         fetch("/api/categories?showHidden=true"),
-        fetch("/api/menu-items"),
+        fetch("/api/menu-items?showHidden=true"),
         fetch("/api/contact-info?showHidden=true"),
         fetch("/api/users")
       ])
