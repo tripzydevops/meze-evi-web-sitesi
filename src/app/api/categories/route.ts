@@ -215,10 +215,21 @@ export async function DELETE(request: NextRequest) {
     const categoryId = parseInt(id);
     
     // 1. Delete featured dishes records that reference menu items in this category
+    // Handle both old and new tables if they exist
     await db.execute(
       `DELETE FROM homepage_featured_dishes 
        WHERE menu_item_id IN (SELECT id FROM menu_items WHERE category_id = ${categoryId})`
     );
+    
+    // Also handle homepage_featured_dishes_new which was discovered during diagnostics
+    try {
+      await db.execute(
+        `DELETE FROM homepage_featured_dishes_new 
+         WHERE menu_item_id IN (SELECT id FROM menu_items WHERE category_id = ${categoryId})`
+      );
+    } catch (e) {
+      // Ignore if table doesn't exist
+    }
 
     // 2. Delete menu items in this category
     await db.execute(
