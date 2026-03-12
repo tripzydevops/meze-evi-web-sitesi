@@ -940,9 +940,9 @@ export default function AdminPage() {
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="destructive"
                             size="sm"
-                            className="!bg-red-600 !text-white hover:!bg-red-700"
+                            className="!text-white hover:opacity-90"
+                            style={{ backgroundColor: '#dc2626', color: 'white' }}
                             onClick={() => handleDeleteCategory(category.id)}
                             title="Kalıcı olarak sil"
                           >
