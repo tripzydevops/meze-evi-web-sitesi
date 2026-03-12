@@ -211,9 +211,24 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // Manual cascade deletion (as a safeguard/fallback)
+    const categoryId = parseInt(id);
+    
+    // 1. Delete featured dishes records that reference menu items in this category
+    await db.execute(
+      `DELETE FROM homepage_featured_dishes 
+       WHERE menu_item_id IN (SELECT id FROM menu_items WHERE category_id = ${categoryId})`
+    );
+
+    // 2. Delete menu items in this category
+    await db.execute(
+      `DELETE FROM menu_items WHERE category_id = ${categoryId}`
+    );
+
+    // 3. Finally delete the category
     const deleted = await db
       .delete(categories)
-      .where(eq(categories.id, parseInt(id)))
+      .where(eq(categories.id, categoryId))
       .returning();
 
     return NextResponse.json(

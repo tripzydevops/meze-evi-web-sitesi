@@ -11,7 +11,7 @@ export const categories = pgTable('categories', {
 
 export const menuItems = pgTable('menu_items', {
   id: serial('id').primaryKey(),
-  categoryId: integer('category_id').notNull().references(() => categories.id),
+  categoryId: integer('category_id').notNull().references(() => categories.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   price: varchar('price', { length: 50 }),
@@ -55,7 +55,7 @@ export const homepageFeaturedSection = pgTable('homepage_featured_section', {
 
 export const homepageFeaturedDishes = pgTable('homepage_featured_dishes', {
   id: serial('id').primaryKey(),
-  menuItemId: integer('menu_item_id').notNull().references(() => menuItems.id),
+  menuItemId: integer('menu_item_id').notNull().references(() => menuItems.id, { onDelete: 'cascade' }),
   displayOrder: integer('display_order').notNull().default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
