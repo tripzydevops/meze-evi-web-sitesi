@@ -940,9 +940,8 @@ export default function AdminPage() {
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="outline"
+                            variant="destructive"
                             size="sm"
-                            className="text-destructive hover:bg-destructive/10"
                             onClick={() => handleDeleteCategory(category.id)}
                             title="Kalıcı olarak sil"
                           >
