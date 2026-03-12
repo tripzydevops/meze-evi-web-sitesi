@@ -806,7 +806,10 @@ export default function AdminPage() {
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-serif font-bold">Yönetim Paneli</h1>
+            <h1 className="text-2xl font-serif font-bold flex items-center gap-2">
+              Yönetim Paneli 
+              <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full">v1.0.4</span>
+            </h1>
             <p className="text-sm text-muted-foreground">Hoş geldiniz, {session.user.name}</p>
           </div>
           <div className="flex gap-2">
