@@ -53,6 +53,12 @@ export default async function Home() {
     <div className="min-h-screen">
       <JsonLd type="Restaurant" />
       <JsonLd type="ItemList" data={featuredDishes.map(d => d.menuItem)} />
+      <JsonLd type="FAQPage" data={[
+        { question: "Mezeleriniz günlük mü hazırlanıyor?", answer: "Evet, tüm mezelerimiz her sabah taze malzemelerle günlük olarak hazırlanmaktadır." },
+        { question: "Vegan veya vejetaryen seçenekleriniz var mı?", answer: "Evet, menümüzün büyük bir çoğunluğu vejetaryen dostudur. Humus, muhammara ve çeşitli zeytinyağlılarımız gibi birçok vegan seçeneğimiz de mevcuttur." },
+        { question: "Siparişlerimi nasıl kontrol edebilirim?", answer: "Siparişlerinizi web sitemiz üzerinden inceleyebilir, Instagram DM veya telefon hattımız üzerinden doğrudan bizimle iletişime geçerek verebilirsiniz." },
+        { question: "Özel günler için toplu sipariş alıyor musunuz?", answer: "Evet, davetler, doğum günleri ve özel etkinlikleriniz için toplu meze siparişi alıyoruz." }
+      ]} />
       <Navigation />
       
       {/* Hero Section */}

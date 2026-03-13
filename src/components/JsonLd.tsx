@@ -1,5 +1,5 @@
 interface JsonLdProps {
-  type?: 'Restaurant' | 'MenuItem' | 'ItemList';
+  type?: 'Restaurant' | 'MenuItem' | 'ItemList' | 'FAQPage';
   data?: any;
 }
 
@@ -67,6 +67,21 @@ export default function JsonLd({ type = 'Restaurant', data }: JsonLdProps) {
           "@type": "MenuItem",
           "name": item.name,
           "url": `https://www.bispecialmeze.com/menu/${item.id}`
+        }
+      }))
+    };
+  }
+
+  if (type === 'FAQPage' && data) {
+    structuredData = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": data.map((faq: any) => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
         }
       }))
     };

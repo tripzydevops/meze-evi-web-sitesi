@@ -45,6 +45,19 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
                   "{testimonial.content}"
                 </p>
                 <div className="flex items-center gap-4">
+                  {testimonial.imageUrl ? (
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20">
+                      <img 
+                        src={testimonial.imageUrl} 
+                        alt={testimonial.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                      <span className="text-primary font-bold">{testimonial.name.charAt(0)}</span>
+                    </div>
+                  )}
                   <div className="font-serif font-bold text-lg">{testimonial.name}</div>
                 </div>
               </Card>
