@@ -29,11 +29,12 @@ export function middleware(request: NextRequest) {
     const isMutation = ['POST', 'PUT', 'DELETE'].includes(method)
     
     // Whitelist public/read-only or specific safe APIs if any
-    const isPublicApi = pathname.includes('/api/contact-info') && method === 'GET' ||
-                        pathname.includes('/api/menu-items') && method === 'GET' ||
-                        pathname.includes('/api/categories') && method === 'GET' ||
-                        pathname.includes('/api/gallery') && method === 'GET' ||
-                        pathname.includes('/api/testimonials') && method === 'GET'
+    const isPublicApi = (pathname.includes('/api/contact-info') && method === 'GET') ||
+                        (pathname.includes('/api/menu-items') && method === 'GET') ||
+                        (pathname.includes('/api/categories') && method === 'GET') ||
+                        (pathname.includes('/api/gallery') && method === 'GET') ||
+                        (pathname.includes('/api/testimonials') && method === 'GET') ||
+                        (pathname.includes('/api/catering') && method === 'POST')
 
     if (isMutation && !isPublicApi) {
       const adminAuth = request.cookies.get('admin_auth')?.value
