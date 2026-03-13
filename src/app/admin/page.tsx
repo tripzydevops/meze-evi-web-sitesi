@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
-import { Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, Home, FolderOpen, Eye, EyeOff, Mail, MapPin, Phone, Clock, Shield, ImageIcon, Star } from "lucide-react"
+import { Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, Home, FolderOpen, Eye, EyeOff, Mail, MapPin, Phone, Clock, Shield, ImageIcon, Star, Calendar, Users } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
 // LucideIcons map for dynamic icon rendering
@@ -81,6 +81,18 @@ interface ContactFormData {
   displayOrder: string
 }
 
+interface CateringInquiry {
+  id: number
+  fullName: string
+  email: string
+  phone: string
+  eventDate: string | null
+  guestCount: number | null
+  message: string | null
+  status: 'pending' | 'contacted' | 'completed' | 'cancelled'
+  createdAt: string
+}
+
 
 
 interface DeleteConfirmation {
@@ -108,6 +120,7 @@ export default function AdminPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [contactInfos, setContactInfos] = useState<ContactInfo[]>([])
+  const [cateringInquiries, setCateringInquiries] = useState<CateringInquiry[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false)
@@ -212,6 +225,12 @@ export default function AdminPage() {
       if (contactRes.ok) {
         const contactData = await contactRes.json()
         setContactInfos(contactData)
+      }
+
+      const cateringRes = await fetch("/api/catering")
+      if (cateringRes.ok) {
+        const cateringData = await cateringRes.json()
+        setCateringInquiries(cateringData)
       }
     } catch (error) {
       toast.error("Veriler yüklenirken hata oluştu")
@@ -585,6 +604,51 @@ export default function AdminPage() {
     }
   }
 
+  const handleUpdateCateringStatus = async (id: number, status: string) => {
+    try {
+      const response = await fetch(`/api/catering?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      })
+
+      if (response.ok) {
+        toast.success("Durum güncellendi")
+        setCateringInquiries(prev => prev.map(inv => 
+          inv.id === id ? { ...inv, status: status as any } : inv
+        ))
+      } else {
+        toast.error("Güncelleme başarısız")
+      }
+    } catch (error) {
+      toast.error("Bir hata oluştu")
+    }
+  }
+
+  const handleDeleteInquiry = async (id: number) => {
+    setDeleteConfirmation({
+      isOpen: true,
+      title: "Talebi Sil",
+      description: "Bu talebi kalıcı olarak silmek istediğinize emin misiniz?",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/catering?id=${id}`, {
+            method: "DELETE"
+          })
+          if (response.ok) {
+            toast.success("Talep silindi")
+            setCateringInquiries(prev => prev.filter(inv => inv.id !== id))
+          } else {
+            toast.error("Silme başarısız")
+          }
+        } catch (error) {
+          toast.error("Bir hata oluştu")
+        }
+        setDeleteConfirmation(prev => ({ ...prev, isOpen: false }))
+      }
+    })
+  }
+
   const handleRemoveImage = () => {
     setSelectedFile(null)
     setPreviewUrl("")
@@ -796,14 +860,15 @@ export default function AdminPage() {
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="menu-items" className="w-full">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
-            <TabsTrigger value="menu-items">Menü Öğeleri</TabsTrigger>
+        <Tabs defaultValue="menu" className="w-full">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 mb-8">
             <TabsTrigger value="categories">Kategoriler</TabsTrigger>
+            <TabsTrigger value="menu">Menü Öğeleri</TabsTrigger>
+            <TabsTrigger value="catering">Catering Talepleri</TabsTrigger>
             <TabsTrigger value="contact">İletişim Bilgileri</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="menu-items">
+          <TabsContent value="menu">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-serif font-bold">Menü Öğeleri</h2>
               <Button onClick={openAddDialog}>
@@ -966,6 +1031,110 @@ export default function AdminPage() {
                           </Button>
                         </div>
                       </CardContent>
+                    </Card>
+                  )
+                })
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="catering">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-serif font-bold">Catering Talepleri</h2>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div> Beklemede
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div> İletişime Geçildi
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-6">
+              {cateringInquiries.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <Mail className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">Henüz bir catering talebi gelmemiş</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                [...cateringInquiries].reverse().map(inquiry => {
+                  const statusColors = {
+                    pending: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+                    contacted: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+                    completed: "bg-green-500/10 text-green-500 border-green-500/20",
+                    cancelled: "bg-red-500/10 text-red-500 border-red-500/20"
+                  }
+                  
+                  return (
+                    <Card key={inquiry.id} className="overflow-hidden border-primary/5 hover:border-primary/20 transition-all shadow-sm">
+                      <div className="flex flex-col md:flex-row">
+                        <div className={`w-2 ${inquiry.status === 'pending' ? 'bg-yellow-500' : 'bg-blue-500'}`} />
+                        <CardContent className="flex-1 p-6">
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+                            <div>
+                              <div className="flex items-center gap-3 mb-1">
+                                <h3 className="font-bold text-lg">{inquiry.fullName}</h3>
+                                <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${statusColors[inquiry.status]}`}>
+                                  {inquiry.status === 'pending' ? 'Beklemede' : 'İletişime Geçildi'}
+                                </span>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                <a href={`mailto:${inquiry.email}`} className="flex items-center gap-1 hover:text-primary transition-colors">
+                                  <Mail className="w-3.5 h-3.5" /> {inquiry.email}
+                                </a>
+                                <a href={`tel:${inquiry.phone}`} className="flex items-center gap-1 hover:text-primary transition-colors">
+                                  <Phone className="w-3.5 h-3.5" /> {inquiry.phone}
+                                </a>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm font-medium bg-muted/30 px-4 py-2 rounded-lg">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-primary" />
+                                <span>{inquiry.eventDate ? new Date(inquiry.eventDate).toLocaleDateString('tr-TR') : 'Belirtilmedi'}</span>
+                              </div>
+                              <div className="w-px h-4 bg-border" />
+                              <div className="flex items-center gap-2">
+                                <Users className="w-4 h-4 text-primary" />
+                                <span>{inquiry.guestCount || '0'} Kişi</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {inquiry.message && (
+                            <div className="bg-muted/50 p-4 rounded-lg mb-4 text-sm italic border-l-4 border-primary/10">
+                              "{inquiry.message}"
+                            </div>
+                          )}
+                          
+                          <div className="flex justify-between items-center mt-6 pt-4 border-t">
+                            <span className="text-xs text-muted-foreground">
+                              Talep Tarihi: {new Date(inquiry.createdAt).toLocaleString('tr-TR')}
+                            </span>
+                            <div className="flex gap-2">
+                              {inquiry.status === 'pending' && (
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => handleUpdateCateringStatus(inquiry.id, 'contacted')}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                  İletişime Geçildi Olarak İşaretle
+                                </Button>
+                              )}
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleDeleteInquiry(inquiry.id)}
+                                className="text-destructive hover:bg-destructive/5"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </div>
                     </Card>
                   )
                 })
