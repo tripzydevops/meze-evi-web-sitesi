@@ -108,28 +108,11 @@ export default function Navigation() {
               <Instagram className="w-5 h-5" />
             </a>
             
-            {!isPending && (
-              session?.user ? (
-                <div className="flex items-center gap-2">
-                  {isAdmin && (
-                    <Link href="/admin">
-                      <Button variant="outline" size="sm">
-                        Yönetim
-                      </Button>
-                    </Link>
-                  )}
-                  <Button variant="outline" size="sm" onClick={handleSignOut}>
-                    Çıkış
-                  </Button>
-                </div>
-              ) : (
-                <Link href="/sign-in">
-                  <Button size="sm">
-                    Giriş Yap
-                  </Button>
-                </Link>
-              )
-            )}
+            <Link href="/admin">
+              <Button variant="outline" size="sm">
+                Yönetim Paneli
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -183,36 +166,11 @@ export default function Navigation() {
                 Instagram
               </a>
               
-              {!isPending && (
-                session?.user ? (
-                  <>
-                    {isAdmin && (
-                      <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="outline" size="sm" className="w-full">
-                          Yönetim Paneli
-                        </Button>
-                      </Link>
-                    )}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => {
-                        handleSignOut()
-                        setMobileMenuOpen(false)
-                      }}
-                    >
-                      Çıkış Yap
-                    </Button>
-                  </>
-                ) : (
-                  <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
-                    <Button size="sm" className="w-full">
-                      Giriş Yap
-                    </Button>
-                  </Link>
-                )
-              )}
+              <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" size="sm" className="w-full">
+                  Yönetim Paneli
+                </Button>
+              </Link>
             </div>
           </div>
         )}
