@@ -12,6 +12,14 @@ export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [navSearch, setNavSearch] = useState("")
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (navSearch.trim()) {
+      router.push(`/menu?search=${encodeURIComponent(navSearch.trim())}`)
+    }
+  }
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -39,18 +47,15 @@ export default function Navigation() {
           {/* Desktop Search & Contact (Utilization of space) */}
           <div className="hidden lg:flex items-center flex-1 max-w-xl mx-10 gap-8">
             {/* Search Bar */}
-            <div className="relative w-full max-w-sm group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <form onSubmit={handleSearch} className="relative w-full max-w-sm group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors cursor-pointer" onClick={handleSearch} />
               <Input
                 placeholder="Lezzet ara..."
+                value={navSearch}
+                onChange={(e) => setNavSearch(e.target.value)}
                 className="pl-9 bg-muted/40 border-none focus-visible:ring-1 focus-visible:ring-primary/20 h-9 text-sm"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    router.push(`/menu?search=${e.currentTarget.value}`)
-                  }
-                }}
               />
-            </div>
+            </form>
 
             {/* Contact Info */}
             <div className="hidden xl:flex items-center gap-2 text-sm font-medium whitespace-nowrap">

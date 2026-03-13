@@ -71,14 +71,14 @@ function MenuContent() {
       return menuCategories.filter(cat => !cat.hidden)
     }
 
-    const query = searchQuery.toLowerCase()
+    const query = searchQuery.toLocaleLowerCase('tr')
     return menuCategories
       .filter(cat => !cat.hidden)
       .map(cat => ({
         ...cat,
         items: cat.items.filter(item => 
-          item.name.toLowerCase().includes(query) || 
-          (item.description?.toLowerCase().includes(query))
+          item.name.toLocaleLowerCase('tr').includes(query) || 
+          (item.description?.toLocaleLowerCase('tr').includes(query))
         )
       }))
       .filter(cat => cat.items.length > 0)
