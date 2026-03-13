@@ -6,8 +6,19 @@ import Script from "next/script";
 import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
-  title: "Bispecial Meze - Geleneksel Türk Mezeleri",
-  description: "İstanbul'da geleneksel Türk mezelerinin modern sunumu. Taze ve lezzetli mezeler ile unutulmaz bir deneyim.",
+  title: "Bispecial Meze - Geleneksel Türk Mezeleri & Meze Evi",
+  description: "İstanbul'un en taze meze evi. Geleneksel Türk mezelerinin modern sunumu, günlük hazırlanan lezzetler. Sipariş ve bilgi için bize ulaşın.",
+  keywords: ["meze", "türk mezeleri", "meze evi", "istanbul meze", "taze meze", "bispecial meze", "haydari", "humus", "meze sipariş"],
+  openGraph: {
+    title: "Bispecial Meze - Geleneksel Türk Mezeleri",
+    description: "İstanbul'un en taze meze evi. Geleneksel Türk mezelerinin modern sunumu.",
+    images: [{ url: "/og-image.jpg" }],
+    type: "website",
+    locale: "tr_TR",
+  },
+  alternates: {
+    canonical: "https://www.bispecialmeze.com",
+  },
 };
 
 export default function RootLayout({

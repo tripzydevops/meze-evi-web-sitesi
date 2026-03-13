@@ -1,4 +1,5 @@
 import { pgTable, serial, text, varchar, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
 export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
@@ -8,6 +9,10 @@ export const categories = pgTable('categories', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  menuItems: many(menuItems),
+}));
 
 export const menuItems = pgTable('menu_items', {
   id: serial('id').primaryKey(),
@@ -22,6 +27,14 @@ export const menuItems = pgTable('menu_items', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [menuItems.categoryId],
+    references: [categories.id],
+  }),
+  featuredDishes: many(homepageFeaturedDishes),
+}));
 
 export const homepageHero = pgTable('homepage_hero', {
   id: serial('id').primaryKey(),
@@ -62,6 +75,13 @@ export const homepageFeaturedDishes = pgTable('homepage_featured_dishes', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
+export const homepageFeaturedDishesRelations = relations(homepageFeaturedDishes, ({ one }) => ({
+  menuItem: one(menuItems, {
+    fields: [homepageFeaturedDishes.menuItemId],
+    references: [menuItems.id],
+  }),
+}));
+
 export const homepageAboutSection = pgTable('homepage_about_section', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
@@ -85,6 +105,3 @@ export const contactInfo = pgTable('contact_info', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
-
-
-// Categories, Menu Items, and other content tables remain unchanged.
