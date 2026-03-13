@@ -6,6 +6,8 @@ import { eq } from 'drizzle-orm';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('Incoming Catering Inquiry:', body);
+    
     const { fullName, email, phone, eventDate, guestCount, message } = body;
 
     // Basic validation
@@ -16,13 +18,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Robust parsing
+    let parsedGuestCount: number | null = null;
+    if (guestCount !== undefined && guestCount !== null && guestCount !== "") {
+      const p = parseInt(String(guestCount));
+      if (!isNaN(p)) parsedGuestCount = p;
+    }
+
+    let parsedEventDate: Date | null = null;
+    if (eventDate) {
+      const d = new Date(eventDate);
+      if (!isNaN(d.getTime())) parsedEventDate = d;
+    }
+
     const newInquiry = await db.insert(cateringInquiries).values({
       fullName,
       email,
       phone,
-      eventDate: eventDate ? new Date(eventDate) : null,
-      guestCount: guestCount ? parseInt(guestCount) : null,
-      message,
+      eventDate: parsedEventDate,
+      guestCount: parsedGuestCount,
+      message: message || null,
       status: 'pending',
     }).returning();
 
@@ -33,9 +48,13 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error: any) {
-    console.error('Catering Inquiry Error:', error);
+    console.error('CRITICAL: Catering Inquiry API Error:', error);
     return NextResponse.json(
-      { error: 'Bir hata oluştu. Lütfen tekrar deneyin.', detail: error.message },
+      { 
+        error: 'Bir sunucu hatası oluştu.', 
+        detail: error.message,
+        hint: 'Veritabanı bağlantısını veya şema uyumluluğunu kontrol edin.'
+      },
       { status: 500 }
     );
   }

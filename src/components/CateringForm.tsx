@@ -42,8 +42,15 @@ export default function CateringForm() {
           message: ""
         })
       } else {
-        const error = await response.json()
-        toast.error(error.error || "Bir hata oluştu. Lütfen tekrar deneyin.")
+        let errorMessage = "Bir hata oluştu. Lütfen tekrar deneyin.";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.detail || errorMessage;
+          console.error("Catering Submission Error:", errorData);
+        } catch (e) {
+          console.error("Failed to parse error response:", e);
+        }
+        toast.error(errorMessage);
       }
     } catch (error) {
       toast.error("Bağlantı hatası oluştu.")
