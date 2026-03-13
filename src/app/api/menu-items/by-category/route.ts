@@ -5,42 +5,26 @@ import { eq, asc, desc, and } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all non-hidden categories ordered by displayOrder
-    const allCategories = await db.select()
-      .from(categories)
-      .where(eq(categories.hidden, false))
-      .orderBy(asc(categories.displayOrder));
+    // Single efficient query to fetch all non-hidden categories with their non-hidden menu items
+    const groupedData = await db.query.categories.findMany({
+      where: (cat, { eq }: any) => eq(cat.hidden, false),
+      orderBy: (cat, { asc }: any) => [asc(cat.displayOrder)],
+      with: {
+        menuItems: {
+          where: (item: any, { eq }: any) => eq(item.hidden, false),
+          orderBy: (item: any, { desc }: any) => [desc(item.id)],
+        },
+      },
+    });
 
-    // Build the grouped response
-    const groupedData = await Promise.all(
-      allCategories.map(async (category) => {
-        // Fetch menu items for this category ordered by id DESC
-        const items = await db.select({
-          id: menuItems.id,
-          categoryId: menuItems.categoryId,
-          name: menuItems.name,
-          description: menuItems.description,
-          price: menuItems.price,
-          imageUrl: menuItems.imageUrl,
-          popular: menuItems.popular,
-          servingSize: menuItems.servingSize,
-          createdAt: menuItems.createdAt,
-          updatedAt: menuItems.updatedAt,
-        })
-          .from(menuItems)
-          .where(and(eq(menuItems.categoryId, category.id), eq(menuItems.hidden, false)))
-          .orderBy(desc(menuItems.id));
+    // Rename menuItems to items for backward compatibility with the frontend if needed
+    // Actually, looking at history, the frontend expects 'items'
+    const results = groupedData.map(cat => ({
+      ...cat,
+      items: (cat as any).menuItems
+    }));
 
-        return {
-          id: category.id,
-          name: category.name,
-          displayOrder: category.displayOrder,
-          items: items
-        };
-      })
-    );
-
-    return NextResponse.json(groupedData, { status: 200 });
+    return NextResponse.json(results, { status: 200 });
   } catch (error) {
     console.error('GET error:', error);
     return NextResponse.json(
