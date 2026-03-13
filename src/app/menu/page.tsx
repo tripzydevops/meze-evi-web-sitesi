@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, Suspense } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import Navigation from "@/components/Navigation"
 import Footer from "@/components/Footer"
 import { Card } from "@/components/ui/card"
@@ -32,11 +33,18 @@ interface MenuItem {
   popular: boolean
 }
 
-export default function MenuPage() {
+function MenuContent() {
+  const searchParams = useSearchParams()
+  const searchFromUrl = searchParams.get("search") || ""
+  
   const [menuCategories, setMenuCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState(searchFromUrl)
+
+  useEffect(() => {
+    setSearchQuery(searchFromUrl)
+  }, [searchFromUrl])
 
   useEffect(() => {
     fetchData()
@@ -246,5 +254,17 @@ export default function MenuPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function MenuPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex justify-center items-center bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    }>
+      <MenuContent />
+    </Suspense>
   )
 }
