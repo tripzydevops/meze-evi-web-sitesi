@@ -58,7 +58,7 @@ export default function CateringForm() {
   }
 
   return (
-    <Card className="border-primary/10 shadow-xl overflow-hidden">
+    <Card className="border-primary/10 shadow-xl overflow-hidden bg-white">
       <div className="bg-primary px-6 py-4">
         <h3 className="text-white font-serif text-xl font-semibold flex items-center gap-2">
           <Send className="w-5 h-5" />
