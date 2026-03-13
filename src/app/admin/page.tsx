@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession, authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -90,7 +89,6 @@ interface FormData {
 }
 
 export default function AdminPage() {
-  const { data: session, isPending } = useSession()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [categories, setCategories] = useState<Category[]>([])
@@ -205,45 +203,15 @@ export default function AdminPage() {
     }
   }
 
-  // Show access denied if not admin
-  /*
-  if (!isPending && session?.user && !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-        ...
-      </div>
-    )
-  }
-  */
+  useEffect(() => {
+    if (isPasswordVerified || localStorage.getItem("admin_auth") === "true") {
+      fetchData()
+    }
+  }, [isPasswordVerified])
 
   const handleSignOut = async () => {
-    try {
-      await authClient.signOut({
-        fetchOptions: {
-          auth: {
-            type: "Bearer",
-            token: localStorage.getItem("bearer_token") || "",
-          },
-        },
-      })
-      
-      localStorage.removeItem("bearer_token")
-      localStorage.clear()
-      sessionStorage.clear()
-      
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
-
-      window.location.href = "/"
-    } catch (error) {
-      console.error("Sign out error:", error)
-      localStorage.clear()
-      sessionStorage.clear()
-      window.location.href = "/"
-    }
+    localStorage.removeItem("admin_auth")
+    window.location.href = "/"
   }
 
   const handleToggleUserRole = async (user: User) => {

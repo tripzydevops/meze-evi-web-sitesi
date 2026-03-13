@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession, authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -84,7 +83,6 @@ interface AboutSection {
 const iconList = ['ChefHat', 'Star', 'Clock', 'MapPin', 'Utensils', 'Heart', 'Award', 'Coffee', 'Users', 'Sparkles']
 
 export default function HomepageAdminPage() {
-  const { data: session, isPending, refetch } = useSession()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   
@@ -220,23 +218,8 @@ export default function HomepageAdminPage() {
   }
 
   const handleSignOut = async () => {
-    try {
-      // Clear all cookies manually
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
-      
-      // Clear all storage
-      localStorage.clear()
-      sessionStorage.clear()
-      
-      // Force redirect immediately
-      window.location.href = "/"
-    } catch (error) {
-      window.location.href = "/"
-    }
+    localStorage.removeItem("admin_auth")
+    window.location.href = "/"
   }
 
   const handleUploadImage = async (file: File) => {

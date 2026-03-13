@@ -3,52 +3,17 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
-import { Menu, X, Instagram } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useSession, authClient } from "@/lib/auth-client"
+import { Menu, X, ChevronRight, MapPin, Phone, Instagram, Facebook, Home, Info, Utensils, Shield, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 
 export default function Navigation() {
-  const { data: session, isPending, refetch } = useSession()
+  const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const handleSignOut = async () => {
-    try {
-      await authClient.signOut({
-        fetchOptions: {
-          auth: {
-            type: "Bearer",
-            token: localStorage.getItem("bearer_token") || "",
-          },
-        },
-      })
-      
-      // Clear all storage
-      localStorage.removeItem("bearer_token")
-      localStorage.clear()
-      sessionStorage.clear()
-      
-      // Clear all cookies manually
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
-
-      // Redirect to home and force a reload to clear state
-      window.location.href = "/"
-    } catch (error) {
-      console.error("Sign out error:", error)
-      localStorage.clear()
-      sessionStorage.clear()
-      window.location.href = "/"
-    }
-  }
-
   // Check if user is admin
-  const isAdmin = (session?.user as any)?.role === "admin"
+  
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
