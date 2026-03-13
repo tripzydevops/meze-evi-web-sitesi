@@ -127,3 +127,16 @@ export const testimonials = pgTable('testimonials', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+export const cateringInquiries = pgTable('catering_inquiries', {
+  id: serial('id').primaryKey(),
+  fullName: varchar('full_name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 50 }).notNull(),
+  eventDate: timestamp('event_date'),
+  guestCount: integer('guest_count'),
+  message: text('message'),
+  status: varchar('status', { length: 50 }).default('pending'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});

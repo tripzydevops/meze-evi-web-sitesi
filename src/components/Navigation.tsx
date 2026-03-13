@@ -86,6 +86,12 @@ export default function Navigation() {
               Menü
             </Link>
             <Link 
+              href="/catering" 
+              className="text-foreground hover:text-primary transition-colors font-medium"
+            >
+              Catering
+            </Link>
+            <Link 
               href="/hakkimizda" 
               className="text-foreground hover:text-primary transition-colors font-medium"
             >
@@ -139,6 +145,13 @@ export default function Navigation() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Menü
+              </Link>
+              <Link 
+                href="/catering" 
+                className="text-foreground hover:text-primary transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Catering
               </Link>
               <Link 
                 href="/hakkimizda" 

@@ -68,6 +68,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/catering" className="text-muted-foreground hover:text-primary transition-colors">
+                  Catering
+                </Link>
+              </li>
+              <li>
                 <Link href="/hakkimizda" className="text-muted-foreground hover:text-primary transition-colors">
                   Hakkımızda
                 </Link>
