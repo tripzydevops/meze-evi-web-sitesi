@@ -6,6 +6,7 @@ import Script from "next/script";
 import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.bispecialmeze.com"),
   title: {
     default: "Bispecial Meze - Geleneksel Türk Mezeleri & Meze Evi İstanbul",
     template: "%s | Bispecial Meze"
