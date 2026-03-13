@@ -137,26 +137,39 @@ export default function AdminPage() {
   const [previewUrl, setPreviewUrl] = useState<string>("")
   const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false)
 
-  // Redirect if not authenticated or not admin
-  useEffect(() => {
-    // Auth disabled for direct access fix
-    /*
-    if (!isPending && !session?.user) {
-      router.push("/sign-in?redirect=/admin")
-    }
-    */
-    fetchData()
-  }, [session, isPending, router])
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false)
+  const [passwordInput, setPasswordInput] = useState("")
 
   // Check if user is admin
-  // @ts-ignore - session.user type from better-auth doesn't include role by default in client-side types
-  const isAdmin = true // (session?.user as any)?.role === "admin"
+  const isAdmin = true 
 
   useEffect(() => {
-    console.log("Admin Panel v1.0.2 - Direct Access Active")
+    const savedAuth = localStorage.getItem("admin_auth")
+    if (savedAuth === "true") {
+      setIsPasswordVerified(true)
+    }
   }, [])
 
+  useEffect(() => {
+    console.log("Admin Panel v1.0.3 - Password Protection Active")
+  }, [])
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (passwordInput === "1234") {
+      setIsPasswordVerified(true)
+      localStorage.setItem("admin_auth", "true")
+      toast.success("Giriş başarılı")
+      fetchData()
+    } else {
+      toast.error("Hatalı şifre")
+    }
+  }
+
   const fetchData = async () => {
+    // Only fetch if verified
+    if (!isPasswordVerified && localStorage.getItem("admin_auth") !== "true") return
+    
     setIsLoading(true)
     try {
       const [categoriesRes, itemsRes, contactRes, usersRes] = await Promise.all([
@@ -764,16 +777,38 @@ export default function AdminPage() {
     })
   }
 
-  if (isPending) {
+  if (!isPasswordVerified) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Shield className="h-12 w-12 text-primary" />
+            </div>
+            <CardTitle>Yönetim Paneli Girişi</CardTitle>
+            <CardDescription>Devam etmek için şifreyi girin</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="admin-password">Şifre</Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  placeholder="••••"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Giriş Yap
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     )
-  }
-
-  if (!session?.user) {
-    return null
   }
 
   const groupedItems = categories.map(category => ({
