@@ -11,11 +11,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-import { Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, ArrowLeft, Shield } from "lucide-react"
+import { 
+  Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, ArrowLeft, Shield,
+  ChefHat, Star, Clock, MapPin, Utensils, Heart, Award, Coffee, Users, Sparkles, Mail
+} from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
-import * as LucideIcons from "lucide-react"
+// LucideIcons map for dynamic icon rendering
+const LucideIconMap: Record<string, React.ComponentType<any>> = {
+  ChefHat, Star, Clock, MapPin, Utensils, Heart, Award, Coffee, Users, Sparkles, Mail,
+  Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, ArrowLeft, Shield
+}
 
 interface HeroSection {
   id: number
@@ -711,7 +718,7 @@ export default function HomepageAdminPage() {
               <CardContent>
                 <div className="space-y-3">
                   {features.map(feature => {
-                    const IconComponent = (LucideIcons as any)[feature.icon]
+                    const IconComponent = LucideIconMap[feature.icon]
                     return (
                       <div key={feature.id} className="flex items-center gap-4 p-4 border rounded-lg">
                         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">

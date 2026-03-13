@@ -6,6 +6,8 @@ const __dirname = path.dirname(__filename);
 
 const LOADER = path.resolve(__dirname, 'src/visual-edits/component-tagger-loader.js');
 
+const isProd = process.env.NODE_ENV === 'production';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -24,7 +26,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   turbopack: {
-    rules: {
+    rules: isProd ? {} : {
       "src/**/*.{tsx,jsx}": {
         loaders: [LOADER],
         as: "*.tsx",

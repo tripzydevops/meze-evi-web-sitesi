@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Instagram, MessageCircle } from "lucide-react"
-import * as LucideIcons from "lucide-react"
+import { Instagram, MessageCircle, Mail, MapPin, Phone, Clock } from "lucide-react"
+
+// LucideIcons map for dynamic icon rendering
+const LucideIconMap: Record<string, React.ComponentType<any>> = {
+  Instagram, MessageCircle, Mail, MapPin, Phone, Clock
+}
 import { Button } from "@/components/ui/button"
 
 interface ContactInfo {
@@ -81,7 +85,7 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">İletişim</h4>
             <ul className="space-y-3 text-sm">
               {contactInfos.map((info) => {
-                const IconComponent = (LucideIcons as any)[info.icon] || LucideIcons.Mail
+                const IconComponent = LucideIconMap[info.icon] || Mail
                 return (
                   <li key={info.id} className="flex items-start space-x-2 text-muted-foreground">
                     <IconComponent className="w-4 h-4 mt-0.5 flex-shrink-0" />

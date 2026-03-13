@@ -5,8 +5,12 @@ import Navigation from "@/components/Navigation"
 import Footer from "@/components/Footer"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Instagram, MessageCircle, Loader2 } from "lucide-react"
-import * as LucideIcons from "lucide-react"
+import { Instagram, MessageCircle, Loader2, Mail, MapPin, Phone, Clock } from "lucide-react"
+
+// LucideIcons map for dynamic icon rendering
+const LucideIconMap: Record<string, React.ComponentType<any>> = {
+  Instagram, MessageCircle, Loader2, Mail, MapPin, Phone, Clock
+}
 
 interface ContactInfo {
   id: number
@@ -100,7 +104,7 @@ export default function ContactPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {contactInfos.map((info) => {
-                const IconComponent = (LucideIcons as any)[info.icon] || LucideIcons.Mail
+                const IconComponent = LucideIconMap[info.icon] || Mail
                 return (
                   <Card key={info.id} className="p-6 text-center hover:shadow-lg transition-shadow">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">

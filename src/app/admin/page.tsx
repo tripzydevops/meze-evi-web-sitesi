@@ -12,10 +12,29 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
-import { Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, Home, FolderOpen, Eye, EyeOff, Mail, MapPin, Phone, Clock, Shield, UserCog } from "lucide-react"
+import { Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, Home, FolderOpen, Eye, EyeOff, Mail, MapPin, Phone, Clock, Shield } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
-import * as LucideIcons from "lucide-react"
+// LucideIcons map for dynamic icon rendering
+const LucideIconMap: Record<string, React.ComponentType<any>> = {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Shield,
+  Home,
+  FolderOpen,
+  Eye,
+  EyeOff,
+  Trash2,
+  Pencil,
+  Plus,
+  Loader2,
+  AlertCircle,
+  LogOut,
+  Upload,
+  X
+}
 
 interface Category {
   id: number
@@ -60,14 +79,7 @@ interface ContactFormData {
   displayOrder: string
 }
 
-interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-  emailVerified: boolean
-  createdAt: string
-}
+
 
 interface DeleteConfirmation {
   isOpen: boolean
@@ -94,7 +106,6 @@ export default function AdminPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [contactInfos, setContactInfos] = useState<ContactInfo[]>([])
-  const [users, setUsers] = useState<User[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false)
@@ -170,11 +181,10 @@ export default function AdminPage() {
     
     setIsLoading(true)
     try {
-      const [categoriesRes, itemsRes, contactRes, usersRes] = await Promise.all([
+      const [categoriesRes, itemsRes, contactRes] = await Promise.all([
         fetch("/api/categories?showHidden=true"),
         fetch("/api/menu-items?showHidden=true"),
-        fetch("/api/contact-info?showHidden=true"),
-        fetch("/api/users")
+        fetch("/api/contact-info?showHidden=true")
       ])
 
       if (categoriesRes.ok) {
@@ -190,11 +200,6 @@ export default function AdminPage() {
       if (contactRes.ok) {
         const contactData = await contactRes.json()
         setContactInfos(contactData)
-      }
-
-      if (usersRes.ok) {
-        const usersData = await usersRes.json()
-        setUsers(usersData)
       }
     } catch (error) {
       toast.error("Veriler yüklenirken hata oluştu")
@@ -214,54 +219,8 @@ export default function AdminPage() {
     window.location.href = "/"
   }
 
-  const handleToggleUserRole = async (user: User) => {
-    const newRole = user.role === "admin" ? "user" : "admin"
-    
-    try {
-      const response = await fetch(`/api/users?id=${user.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole })
-      })
 
-      if (response.ok) {
-        toast.success(`Kullanıcı rolü ${newRole === "admin" ? "yönetici" : "kullanıcı"} olarak güncellendi`)
-        fetchData()
-      } else {
-        const error = await response.json()
-        toast.error(error.error || "İşlem başarısız")
-      }
-    } catch (error) {
-      toast.error("Bir hata oluştu")
-    }
-  }
 
-  const handleDeleteUser = async (id: string) => {
-    setDeleteConfirmation({
-      isOpen: true,
-      title: "Kullanıcıyı Sil",
-      description: "Bu kullanıcıyı kalıcı olarak silmek istediğinizden emin misiniz?",
-      onConfirm: async () => {
-        try {
-          const response = await fetch(`/api/users?id=${id}`, {
-            method: "DELETE"
-          })
-
-          if (response.ok) {
-            toast.success("Kullanıcı silindi")
-            fetchData()
-          } else {
-            const error = await response.json()
-            toast.error(error.error || "Silme işlemi başarısız")
-          }
-        } catch (error) {
-          toast.error("Bir hata oluştu")
-        } finally {
-          setDeleteConfirmation({ isOpen: false, title: "", description: "", onConfirm: () => {} })
-        }
-      }
-    })
-  }
 
   const handleToggleHidden = async (category: Category) => {
     try {
@@ -819,11 +778,10 @@ export default function AdminPage() {
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="menu-items" className="w-full">
-          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-8">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
             <TabsTrigger value="menu-items">Menü Öğeleri</TabsTrigger>
             <TabsTrigger value="categories">Kategoriler</TabsTrigger>
             <TabsTrigger value="contact">İletişim Bilgileri</TabsTrigger>
-            <TabsTrigger value="users">Kullanıcılar</TabsTrigger>
           </TabsList>
 
           <TabsContent value="menu-items">
@@ -1015,7 +973,7 @@ export default function AdminPage() {
                 </Card>
               ) : (
                 contactInfos.map(contact => {
-                  const IconComponent = (LucideIcons as any)[contact.icon] || Mail
+                  const IconComponent = LucideIconMap[contact.icon] || Mail
                   return (
                     <Card key={contact.id} className={contact.hidden ? "opacity-60 border-dashed" : ""}>
                       <CardContent className="flex items-center gap-4 p-6">
@@ -1075,77 +1033,7 @@ export default function AdminPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="users">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-serif font-bold">Kayıtlı Kullanıcılar</h2>
-              <div className="text-sm text-muted-foreground">
-                Toplam: {users.length} kullanıcı
-              </div>
-            </div>
 
-            <div className="grid gap-4">
-              {users.length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <UserCog className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">Henüz kayıtlı kullanıcı yok</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                users.map(user => (
-                  <Card key={user.id}>
-                    <CardContent className="flex items-center gap-4 p-6">
-                      <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full flex-shrink-0">
-                        <UserCog className="w-6 h-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-lg">{user.name}</h3>
-                          {user.role === "admin" && (
-                            <span className="text-xs bg-primary text-white px-2 py-0.5 rounded flex items-center gap-1">
-                              <Shield className="w-3 h-3" />
-                              Yönetici
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm font-medium">{user.email}</p>
-                        <div className="flex gap-3 text-xs text-muted-foreground mt-1">
-                          <span>
-                            Kayıt: {new Date(user.createdAt).toLocaleDateString('tr-TR')}
-                          </span>
-                          <span>•</span>
-                          <span>
-                            {user.emailVerified ? "✓ E-posta doğrulanmış" : "✗ E-posta doğrulanmamış"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleToggleUserRole(user)}
-                          disabled={false}
-                          title={user.role === "admin" ? "Kullanıcı yap" : "Yönetici yap"}
-                        >
-                          <Shield className="h-4 w-4 mr-1" />
-                          {user.role === "admin" ? "Kullanıcı Yap" : "Yönetici Yap"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteUser(user.id)}
-                          disabled={false}
-                          title="Kullanıcıyı sil"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
-          </TabsContent>
         </Tabs>
       </main>
 
