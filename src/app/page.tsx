@@ -11,9 +11,11 @@ import AnimatedSection from "@/components/AnimatedSection"
 import HeroButtons from "@/components/HeroButtons"
 import InstagramCTA from "@/components/InstagramCTA"
 import JsonLd from "@/components/JsonLd"
+import Gallery from "@/components/Gallery"
+import Testimonials from "@/components/Testimonials"
 
 export default async function Home() {
-  const [heroDataArr, features, featuredSectionArr, featuredDishes, aboutSectionArr] = await Promise.all([
+  const [heroDataArr, features, featuredSectionArr, featuredDishes, aboutSectionArr, gallery, testimonials] = await Promise.all([
     db.query.homepageHero.findMany(),
     db.query.homepageFeatures.findMany({ orderBy: (features, { asc }) => [asc(features.displayOrder)] }),
     db.query.homepageFeaturedSection.findMany(),
@@ -21,7 +23,15 @@ export default async function Home() {
       with: { menuItem: true },
       orderBy: (dishes, { asc }) => [asc(dishes.displayOrder)]
     }),
-    db.query.homepageAboutSection.findMany()
+    db.query.homepageAboutSection.findMany(),
+    db.query.galleryImages.findMany({
+      where: (img, { eq }) => eq(img.hidden, false),
+      orderBy: (img, { asc }) => [asc(img.displayOrder)]
+    }),
+    db.query.testimonials.findMany({
+      where: (t, { eq }) => eq(t.hidden, false),
+      orderBy: (t, { asc }) => [asc(t.displayOrder)]
+    })
   ])
 
   const heroData = heroDataArr[0] || null
@@ -161,6 +171,9 @@ export default async function Home() {
         </section>
       )}
 
+      {/* Gallery Section */}
+      <Gallery images={gallery} />
+
       {/* About Preview */}
       {aboutSection && (
         <section className="py-20 bg-muted/30">
@@ -197,6 +210,9 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* Testimonials Section */}
+      <Testimonials testimonials={testimonials} />
 
       {/* Instagram CTA Section */}
       <InstagramCTA />

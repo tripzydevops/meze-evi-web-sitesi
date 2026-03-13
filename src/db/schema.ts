@@ -105,3 +105,25 @@ export const contactInfo = pgTable('contact_info', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+export const galleryImages = pgTable('gallery_images', {
+  id: serial('id').primaryKey(),
+  url: text('url').notNull(),
+  alt: varchar('alt', { length: 255 }),
+  displayOrder: integer('display_order').notNull().default(0),
+  hidden: boolean('hidden').default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const testimonials = pgTable('testimonials', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  content: text('content').notNull(),
+  rating: integer('rating').notNull().default(5),
+  imageUrl: text('image_url'),
+  displayOrder: integer('display_order').notNull().default(0),
+  hidden: boolean('hidden').default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});

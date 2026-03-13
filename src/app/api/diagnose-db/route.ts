@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
 
   // Test 1: Basic connection test
   try {
-    const result = await db.execute(sql`SELECT 1 as test`);
+    const result: any = await db.execute(sql`SELECT 1 as test`);
     diagnostics.connectionTest = {
       success: true,
-      result: result.rows,
+      result,
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -33,10 +33,10 @@ export async function GET(request: NextRequest) {
 
   // Test 2: List all tables
   try {
-    const result = await db.execute(
+    const result: any = await db.execute(
       sql`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name`
     );
-    const tableNames = result.rows.map((row: any) => row.table_name);
+    const tableNames = result.map((row: any) => row.table_name);
     diagnostics.tables = {
       success: true,
       tableNames,
@@ -52,8 +52,8 @@ export async function GET(request: NextRequest) {
 
   // Test 3: Get database version
   try {
-    const result = await db.execute(sql`SELECT version()`);
-    const versionString = result.rows[0]?.version || 'Unknown';
+    const result: any = await db.execute(sql`SELECT version()`);
+    const versionString = result[0]?.version || 'Unknown';
     diagnostics.version = {
       success: true,
       versionString,

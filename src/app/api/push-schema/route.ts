@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
             id SERIAL PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             display_order INTEGER NOT NULL DEFAULT 0,
+            hidden BOOLEAN DEFAULT false,
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMP NOT NULL DEFAULT NOW()
           )
@@ -31,6 +32,8 @@ export async function GET(request: NextRequest) {
             price VARCHAR(50),
             image_url TEXT,
             popular BOOLEAN DEFAULT false,
+            hidden BOOLEAN DEFAULT false,
+            serving_size VARCHAR(100),
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMP NOT NULL DEFAULT NOW()
           )
@@ -84,10 +87,7 @@ export async function GET(request: NextRequest) {
         sql: sql`
           CREATE TABLE IF NOT EXISTS homepage_featured_dishes (
             id SERIAL PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            description TEXT,
-            price VARCHAR(50) NOT NULL,
-            image_url TEXT,
+            menu_item_id INTEGER NOT NULL REFERENCES menu_items(id) ON DELETE CASCADE,
             display_order INTEGER NOT NULL DEFAULT 0,
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -104,6 +104,53 @@ export async function GET(request: NextRequest) {
             image_url TEXT,
             button_text VARCHAR(100),
             button_link VARCHAR(255),
+            created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+          )
+        `,
+      },
+      {
+        name: 'contact_info',
+        sql: sql`
+          CREATE TABLE IF NOT EXISTS contact_info (
+            id SERIAL PRIMARY KEY,
+            type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            sub_content TEXT,
+            icon TEXT NOT NULL,
+            display_order INTEGER NOT NULL DEFAULT 0,
+            hidden BOOLEAN DEFAULT false,
+            created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+          )
+        `,
+      },
+      {
+        name: 'gallery_images',
+        sql: sql`
+          CREATE TABLE IF NOT EXISTS gallery_images (
+            id SERIAL PRIMARY KEY,
+            url TEXT NOT NULL,
+            alt VARCHAR(255),
+            display_order INTEGER NOT NULL DEFAULT 0,
+            hidden BOOLEAN DEFAULT false,
+            created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+            updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+          )
+        `,
+      },
+      {
+        name: 'testimonials',
+        sql: sql`
+          CREATE TABLE IF NOT EXISTS testimonials (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            rating INTEGER NOT NULL DEFAULT 5,
+            image_url TEXT,
+            display_order INTEGER NOT NULL DEFAULT 0,
+            hidden BOOLEAN DEFAULT false,
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMP NOT NULL DEFAULT NOW()
           )

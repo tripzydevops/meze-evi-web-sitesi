@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
-import { Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, Home, FolderOpen, Eye, EyeOff, Mail, MapPin, Phone, Clock, Shield } from "lucide-react"
+import { Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, Home, FolderOpen, Eye, EyeOff, Mail, MapPin, Phone, Clock, Shield, ImageIcon, Star } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
 // LucideIcons map for dynamic icon rendering
@@ -33,7 +33,9 @@ const LucideIconMap: Record<string, React.ComponentType<any>> = {
   AlertCircle,
   LogOut,
   Upload,
-  X
+  X,
+  ImageIcon,
+  Star
 }
 
 interface Category {
@@ -765,12 +767,24 @@ export default function AdminPage() {
             <Button variant="outline" asChild>
               <a href="/admin/homepage">
                 <Home className="mr-2 h-4 w-4" />
-                Ana Sayfa Yönetimi
+                Ana Sayfa
+              </a>
+            </Button>
+            <Button variant="outline" asChild>
+              <a href="/admin/gallery">
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Galeri
+              </a>
+            </Button>
+            <Button variant="outline" asChild>
+              <a href="/admin/testimonials">
+                <Star className="mr-2 h-4 w-4" />
+                Yorumlar
               </a>
             </Button>
             <Button variant="outline" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
-              Çıkış Yap
+              Çıkış
             </Button>
           </div>
         </div>
