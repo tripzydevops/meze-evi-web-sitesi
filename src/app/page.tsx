@@ -13,6 +13,13 @@ import InstagramCTA from "@/components/InstagramCTA"
 import JsonLd from "@/components/JsonLd"
 import Gallery from "@/components/Gallery"
 import Testimonials from "@/components/Testimonials"
+import AdBanner from "@/components/AdBanner"
+import { 
+  Accordion, 
+  AccordionContent, 
+  AccordionItem, 
+  AccordionTrigger 
+} from "@/components/ui/accordion"
 
 export default async function Home() {
   const [heroDataArr, features, featuredSectionArr, featuredDishes, aboutSectionArr, gallery, testimonials] = await Promise.all([
@@ -44,7 +51,8 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
-      <JsonLd />
+      <JsonLd type="Restaurant" />
+      <JsonLd type="ItemList" data={featuredDishes.map(d => d.menuItem)} />
       <Navigation />
       
       {/* Hero Section */}
@@ -107,6 +115,11 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* Ad Placement 1 */}
+      <div className="container mx-auto px-4">
+        <AdBanner slot="home-top" />
+      </div>
 
       {/* Featured Dishes */}
       {featuredDishes.length > 0 && (
@@ -171,6 +184,11 @@ export default async function Home() {
         </section>
       )}
 
+      {/* Ad Placement 2 */}
+      <div className="container mx-auto px-4">
+        <AdBanner slot="home-middle" format="rectangle" />
+      </div>
+
       {/* Gallery Section */}
       <Gallery images={gallery} />
 
@@ -216,6 +234,45 @@ export default async function Home() {
 
       {/* Instagram CTA Section */}
       <InstagramCTA />
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+          <AnimatedSection className="text-center mb-12">
+            <h2 className="font-serif text-4xl font-bold mb-4">Sıkça Sorulan Sorular</h2>
+            <p className="text-muted-foreground">Bispecial Meze hakkında merak ettiğiniz her şey.</p>
+          </AnimatedSection>
+          
+          <AnimatedSection delay={0.2}>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger className="text-left font-semibold">Mezeleriniz günlük mü hazırlanıyor?</AccordionTrigger>
+                <AccordionContent>
+                  Evet, tüm mezelerimiz her sabah taze malzemelerle günlük olarak hazırlanmaktadır. Hiçbir ürünümüzde koruyucu madde kullanmıyoruz.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-2">
+                <AccordionTrigger className="text-left font-semibold">Vegan veya vejetaryen seçenekleriniz var mı?</AccordionTrigger>
+                <AccordionContent>
+                  Evet, menümüzün büyük bir çoğunluğu vejetaryen dostudur. Humus, muhammara ve çeşitli zeytinyağlılarımız gibi birçok vegan seçeneğimiz de mevcuttur.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger className="text-left font-semibold">Siparişlerimi nasıl kontrol edebilirim?</AccordionTrigger>
+                <AccordionContent>
+                  Siparişlerinizi web sitemiz üzerinden inceleyebilir, Instagram DM veya telefon hattımız üzerinden doğrudan bizimle iletişime geçerek verebilirsiniz.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-4">
+                <AccordionTrigger className="text-left font-semibold">Özel günler için toplu sipariş alıyor musunuz?</AccordionTrigger>
+                <AccordionContent>
+                  Evet, davetler, doğum günleri ve özel etkinlikleriniz için toplu meze siparişi alıyoruz. Detaylar için lütfen en az 2 gün önceden bizimle iletişime geçin.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </AnimatedSection>
+        </div>
+      </section>
 
       <Footer />
     </div>

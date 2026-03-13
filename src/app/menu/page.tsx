@@ -12,6 +12,7 @@ import { Loader2, Utensils, Search, X } from "lucide-react"
 import { shouldShowPrice } from "@/lib/utils"
 import AnimatedSection from "@/components/AnimatedSection"
 import JsonLd from "@/components/JsonLd"
+import AdBanner from "@/components/AdBanner"
 
 interface Category {
   id: number
@@ -93,7 +94,8 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen">
-      <JsonLd />
+      <JsonLd type="Restaurant" />
+      <JsonLd type="ItemList" data={menuCategories.flatMap(cat => cat.items)} />
       <Navigation />
       
       {/* Hero */}
@@ -109,6 +111,11 @@ export default function MenuPage() {
           </AnimatedSection>
         </div>
       </section>
+
+      {/* Ad Placement: Menu Top */}
+      <div className="container mx-auto px-4 mt-8">
+        <AdBanner slot="menu-top" />
+      </div>
 
       {/* Sticky Category Nav & Search */}
       <div className="sticky top-[80px] z-30 bg-background/80 backdrop-blur-md border-b">

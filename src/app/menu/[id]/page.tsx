@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Loader2, ArrowLeft, Utensils, Package } from "lucide-react"
 import { shouldShowPrice } from "@/lib/utils"
+import JsonLd from "@/components/JsonLd"
+import AdBanner from "@/components/AdBanner"
 
 interface MenuItem {
   id: number
@@ -132,6 +134,8 @@ export default function MenuItemPage() {
 
   return (
     <div className="min-h-screen">
+      <JsonLd type="Restaurant" />
+      <JsonLd type="MenuItem" data={menuItem} />
       <Navigation />
       
       {/* Back Button */}
@@ -236,6 +240,11 @@ export default function MenuItemPage() {
                 </Button>
               </div>
             </div>
+          </div>
+
+          {/* Ad Placement: Product Middle */}
+          <div className="my-12">
+            <AdBanner slot="product-detail" format="rectangle" />
           </div>
 
           {/* Related Items */}
