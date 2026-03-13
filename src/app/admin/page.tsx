@@ -1156,8 +1156,8 @@ export default function AdminPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleToggleUserRole(user)}
-                          disabled={user.id === session.user.id}
-                          title={user.id === session.user.id ? "Kendi rolünüzü değiştiremezsiniz" : user.role === "admin" ? "Kullanıcı yap" : "Yönetici yap"}
+                          disabled={false}
+                          title={user.role === "admin" ? "Kullanıcı yap" : "Yönetici yap"}
                         >
                           <Shield className="h-4 w-4 mr-1" />
                           {user.role === "admin" ? "Kullanıcı Yap" : "Yönetici Yap"}
@@ -1166,8 +1166,8 @@ export default function AdminPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleDeleteUser(user.id)}
-                          disabled={user.id === session.user.id}
-                          title={user.id === session.user.id ? "Kendinizi silemezsiniz" : "Kullanıcıyı sil"}
+                          disabled={false}
+                          title="Kullanıcıyı sil"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

@@ -108,19 +108,44 @@ export default function HomepageAdminPage() {
   const [dishPreview, setDishPreview] = useState<string>("")
   const [uploadingImage, setUploadingImage] = useState(false)
 
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false)
+  const [passwordInput, setPasswordInput] = useState("")
+
+  useEffect(() => {
+    const savedAuth = localStorage.getItem("admin_auth")
+    if (savedAuth === "true") {
+      setIsPasswordVerified(true)
+    }
+  }, [])
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (passwordInput === "1234") {
+      setIsPasswordVerified(true)
+      localStorage.setItem("admin_auth", "true")
+      toast.success("Giriş başarılı")
+      fetchAllData()
+    } else {
+      toast.error("Hatalı şifre")
+    }
+  }
+
+  // Redirect disabled for direct access fix
+  /*
   useEffect(() => {
     if (!isPending && !session?.user) {
       router.push("/sign-in?redirect=/admin/homepage")
     }
   }, [session, isPending, router])
+  */
 
-  const isAdmin = (session?.user as any)?.role === "admin"
+  const isAdmin = true 
 
   useEffect(() => {
-    if (session?.user && isAdmin) {
+    if (isPasswordVerified || localStorage.getItem("admin_auth") === "true") {
       fetchAllData()
     }
-  }, [session, isAdmin])
+  }, [isPasswordVerified])
 
   const fetchAllData = async () => {
     setIsLoading(true)
@@ -494,40 +519,38 @@ export default function HomepageAdminPage() {
     }
   }
 
-  if (!isPending && session?.user && !isAdmin) {
+  if (!isPasswordVerified) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
         <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center text-destructive">Erişim Reddedildi</CardTitle>
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Shield className="h-12 w-12 text-primary" />
+            </div>
+            <CardTitle>Yönetim Paneli Girişi</CardTitle>
+            <CardDescription>Devam etmek için şifreyi girin</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Yetkisiz Erişim</AlertTitle>
-              <AlertDescription>
-                Bu sayfaya erişmek için yönetici yetkisine sahip olmalısınız.
-              </AlertDescription>
-            </Alert>
-            <Button onClick={() => router.push("/")} className="w-full">
-              Ana Sayfaya Dön
-            </Button>
+          <CardContent>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="admin-password">Şifre</Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  placeholder="••••"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Giriş Yap
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
     )
-  }
-
-  if (isPending || isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
-  if (!session?.user) {
-    return null
   }
 
   return (
@@ -543,7 +566,7 @@ export default function HomepageAdminPage() {
               </Link>
               <div>
                 <h1 className="text-2xl font-serif font-bold">Ana Sayfa Yönetimi</h1>
-                <p className="text-sm text-muted-foreground">Hoş geldiniz, {session.user.name}</p>
+                <p className="text-sm text-muted-foreground">Hoş geldiniz, Yönetici</p>
               </div>
             </div>
             <Button variant="outline" onClick={handleSignOut}>
