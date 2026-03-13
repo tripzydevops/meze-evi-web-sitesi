@@ -121,9 +121,7 @@ function MenuContent() {
       </section>
 
       {/* Ad Placement: Menu Top */}
-      <div className="container mx-auto px-4 mt-8">
-        <AdBanner slot="menu-top" />
-      </div>
+      <AdBanner slot="menu-top" className="container mx-auto px-4" />
 
       {/* Sticky Category Nav & Search */}
       <div className="sticky top-[80px] z-30 bg-background/80 backdrop-blur-md border-b">

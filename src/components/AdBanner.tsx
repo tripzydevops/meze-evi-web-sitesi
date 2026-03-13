@@ -24,13 +24,15 @@ export default function AdBanner({
     }
   }, [])
 
-  const isPlaceholder = "ca-pub-XXXXXXXXXXXXXXXX" === "ca-pub-XXXXXXXXXXXXXXXX" // This would be dynamic in a real env
+  const isPlaceholder = "ca-pub-XXXXXXXXXXXXXXXX" === "ca-pub-XXXXXXXXXXXXXXXX"
 
-  // We only show the banner if a real client ID is provided
-  // For now, we'll keep the structural div but remove the 'Reklam Alanı' box to hide the 'blank space'
+  if (isPlaceholder) return null
+
   return (
-    <div className={`w-full overflow-hidden ${className}`}>
-      {/* Google AdSense Unit */}
+    <div className={`w-full overflow-hidden my-8 ${className}`}>
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground block mb-2 text-center">
+        Sponsorlu İçerik
+      </span>
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}
@@ -39,13 +41,6 @@ export default function AdBanner({
         data-ad-format={format}
         data-full-width-responsive={responsive}
       />
-      
-      {/* Only show label if it's not a placeholder (ads are actually loading) */}
-      {!isPlaceholder && (
-        <span className="text-[10px] uppercase tracking-widest text-muted-foreground block mb-2 text-center">
-          Sponsorlu İçerik
-        </span>
-      )}
     </div>
   )
 }
