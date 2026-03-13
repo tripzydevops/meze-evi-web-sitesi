@@ -169,12 +169,22 @@ export default function AdminPage() {
     e.preventDefault()
     if (passwordInput === "1234") {
       setIsPasswordVerified(true)
+      // Set local storage for UI state
       localStorage.setItem("admin_auth", "true")
+      // Set cookie for middleware protection
+      document.cookie = `admin_auth=1234; path=/; max-age=${60 * 60 * 24 * 7}; samesite=strict`
+      
       toast.success("Giriş başarılı")
       fetchData()
     } else {
       toast.error("Hatalı şifre")
     }
+  }
+
+  const handleSignOut = async () => {
+    localStorage.removeItem("admin_auth")
+    document.cookie = "admin_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    window.location.href = "/"
   }
 
   const fetchData = async () => {
@@ -215,11 +225,6 @@ export default function AdminPage() {
       fetchData()
     }
   }, [isPasswordVerified])
-
-  const handleSignOut = async () => {
-    localStorage.removeItem("admin_auth")
-    window.location.href = "/"
-  }
 
 
 
