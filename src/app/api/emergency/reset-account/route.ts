@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { user, account, session } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { user, account, session, verification } from '@/db/schema';
+import { eq, or } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,9 +14,12 @@ export async function GET(request: NextRequest) {
       .where(eq(user.email, adminEmail))
       .limit(1);
 
+    // Always try to delete from verification table just in case
+    await db.delete(verification).where(eq(verification.identifier, adminEmail));
+
     if (existingUser.length === 0) {
       return NextResponse.json({ 
-        message: `User ${adminEmail} not found. You can go ahead and sign up fresh.`,
+        message: `User ${adminEmail} not found. Cleaned up any verification records. You can go ahead and sign up fresh.`,
         status: "NOT_FOUND"
       });
     }
@@ -31,7 +34,7 @@ export async function GET(request: NextRequest) {
     await db.delete(user).where(eq(user.id, userId));
 
     return NextResponse.json({ 
-      message: `Successfully deleted account for ${adminEmail}. You can now go to /sign-up to register fresh with the password '12345678'.`,
+      message: `Successfully deleted account and records for ${adminEmail}. You can now go to /sign-up to register fresh.`,
       status: "DELETED"
     });
 

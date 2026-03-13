@@ -66,7 +66,7 @@ export default function SignUpPage() {
         const errorMap: Record<string, string> = {
           USER_ALREADY_EXISTS: "Bu e-posta adresi zaten kayıtlı"
         }
-        toast.error(errorMap[error.code] || "Kayıt başarısız oldu")
+        toast.error(errorMap[error.code] || `Kayıt başarısız oldu: ${error.message || error.code}`)
         return
       }
 
