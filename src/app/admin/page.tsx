@@ -90,7 +90,7 @@ interface FormData {
 }
 
 export default function AdminPage() {
-  const { data: session, isPending, refetch } = useSession()
+  const { data: session, isPending } = useSession()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [categories, setCategories] = useState<Category[]>([])
@@ -832,7 +832,7 @@ export default function AdminPage() {
               Yönetim Paneli 
               <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full">v1.0.4</span>
             </h1>
-            <p className="text-sm text-muted-foreground">Hoş geldiniz, {session.user.name}</p>
+            <p className="text-sm text-muted-foreground">Hoş geldiniz, Yönetici</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" asChild>
