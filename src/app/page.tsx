@@ -77,11 +77,11 @@ export default async function Home() {
           </div>
           <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
             <AnimatedSection>
-              <h1 className="font-serif text-5xl md:text-7xl font-bold mb-6">
+              <h1 className={heroData.titleStyle || "font-serif text-5xl md:text-7xl font-bold mb-6"}>
                 {heroData.title}
               </h1>
               {heroData.subtitle && (
-                <p className="text-xl md:text-2xl mb-8 text-gray-200">
+                <p className={heroData.subtitleStyle || "text-xl md:text-2xl mb-8 text-gray-200"}>
                   {heroData.subtitle}
                 </p>
               )}
@@ -222,10 +222,10 @@ export default async function Home() {
               </AnimatedSection>
               <AnimatedSection delay={0.2}>
                 <div>
-                  <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">
+                  <h2 className={aboutSection.titleStyle || "font-serif text-4xl md:text-5xl font-bold mb-6"}>
                     {aboutSection.title}
                   </h2>
-                  <div className="text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line">
+                  <div className={aboutSection.descriptionStyle || "text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line"}>
                     {aboutSection.description}
                   </div>
                 </div>

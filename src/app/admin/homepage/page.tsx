@@ -33,6 +33,8 @@ interface HeroSection {
   secondaryButtonText: string | null
   secondaryButtonLink: string | null
   backgroundImageUrl: string | null
+  titleStyle: string | null
+  subtitleStyle: string | null
 }
 
 interface Feature {
@@ -85,6 +87,8 @@ interface AboutSection {
   imageUrl: string | null
   buttonText: string | null
   buttonLink: string | null
+  titleStyle: string | null
+  descriptionStyle: string | null
 }
 
 const iconList = ['ChefHat', 'Star', 'Clock', 'MapPin', 'Utensils', 'Heart', 'Award', 'Coffee', 'Users', 'Sparkles']
@@ -278,7 +282,9 @@ export default function HomepageAdminPage() {
         primaryButtonLink: formData.get("primaryButtonLink"),
         secondaryButtonText: formData.get("secondaryButtonText"),
         secondaryButtonLink: formData.get("secondaryButtonLink"),
-        backgroundImageUrl: imageUrl
+        backgroundImageUrl: imageUrl,
+        titleStyle: formData.get("titleStyle"),
+        subtitleStyle: formData.get("subtitleStyle"),
       }
 
       const response = await fetch(`/api/homepage-hero?id=${heroData?.id}`, {
@@ -488,7 +494,9 @@ export default function HomepageAdminPage() {
         description: formData.get("description"),
         imageUrl: imageUrl,
         buttonText: formData.get("buttonText"),
-        buttonLink: formData.get("buttonLink")
+        buttonLink: formData.get("buttonLink"),
+        titleStyle: aboutSection?.titleStyle,
+        descriptionStyle: aboutSection?.descriptionStyle,
       }
 
       const response = await fetch(`/api/homepage-about-section?id=${aboutSection?.id}`, {
@@ -642,6 +650,31 @@ export default function HomepageAdminPage() {
                           name="secondaryButtonLink"
                           defaultValue={heroData.secondaryButtonLink || ""}
                         />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Başlık Stili</Label>
+                        <Select name="titleStyle" defaultValue={heroData.titleStyle || "font-serif text-5xl md:text-7xl font-bold mb-6"}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="font-serif text-4xl font-normal mb-6">Normal 4XL</SelectItem>
+                            <SelectItem value="font-serif text-5xl font-bold mb-6">Kalın 5XL</SelectItem>
+                            <SelectItem value="font-serif text-5xl md:text-7xl font-bold mb-6">Varsayılan (Büyük)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Alt Başlık Stili</Label>
+                        <Select name="subtitleStyle" defaultValue={heroData.subtitleStyle || "text-xl md:text-2xl mb-8 text-gray-200"}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="text-lg mb-8 text-gray-200">Küçük</SelectItem>
+                            <SelectItem value="text-xl md:text-2xl mb-8 text-gray-200">Varsayılan</SelectItem>
+                            <SelectItem value="text-3xl mb-8 text-gray-200">Büyük</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
 
@@ -868,6 +901,37 @@ export default function HomepageAdminPage() {
                       />
                     </div>
 
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Başlık Stili</Label>
+                        <Select 
+                          value={aboutSection.titleStyle || "font-serif text-4xl md:text-5xl font-bold mb-6"} 
+                          onValueChange={(val) => setAboutSection({...aboutSection, titleStyle: val})}
+                        >
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="font-serif text-3xl font-semibold mb-6">Küçük Başlık</SelectItem>
+                            <SelectItem value="font-serif text-4xl md:text-5xl font-bold mb-6">Varsayılan</SelectItem>
+                            <SelectItem value="font-serif text-6xl font-extrabold mb-6">Devasa</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Açıklama Stili</Label>
+                        <Select 
+                          value={aboutSection.descriptionStyle || "text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line"} 
+                          onValueChange={(val) => setAboutSection({...aboutSection, descriptionStyle: val})}
+                        >
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="text-muted-foreground text-sm mb-8 leading-relaxed whitespace-pre-line">Küçük</SelectItem>
+                            <SelectItem value="text-muted-foreground text-base mb-8 leading-relaxed whitespace-pre-line">Orta</SelectItem>
+                            <SelectItem value="text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line">Varsayılan (Büyük)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
                       <Label>Resim</Label>
                       {aboutImage.preview || aboutSection.imageUrl ? (
@@ -885,6 +949,7 @@ export default function HomepageAdminPage() {
                             className="absolute top-2 right-2"
                             onClick={() => {
                               setAboutImage({ file: null, preview: "" })
+                              setAboutSection({ ...aboutSection, imageUrl: null })
                             }}
                           >
                             <X className="h-4 w-4" />

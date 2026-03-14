@@ -64,6 +64,8 @@ export async function POST(request: NextRequest) {
       secondaryButtonText,
       secondaryButtonLink,
       backgroundImageUrl,
+      titleStyle,
+      subtitleStyle,
     } = body;
 
     if (!title || typeof title !== 'string' || title.trim() === '') {
@@ -83,6 +85,8 @@ export async function POST(request: NextRequest) {
         secondaryButtonText: secondaryButtonText ? secondaryButtonText.trim() : null,
         secondaryButtonLink: secondaryButtonLink ? secondaryButtonLink.trim() : null,
         backgroundImageUrl: backgroundImageUrl ? backgroundImageUrl.trim() : null,
+        titleStyle: titleStyle || null,
+        subtitleStyle: subtitleStyle || null,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -135,6 +139,8 @@ export async function PUT(request: NextRequest) {
       secondaryButtonText,
       secondaryButtonLink,
       backgroundImageUrl,
+      titleStyle,
+      subtitleStyle,
     } = body;
 
     const updates: Record<string, string | null | Date> = {
@@ -173,6 +179,14 @@ export async function PUT(request: NextRequest) {
 
     if (backgroundImageUrl !== undefined) {
       updates.backgroundImageUrl = backgroundImageUrl ? backgroundImageUrl.trim() : null;
+    }
+
+    if (titleStyle !== undefined) {
+      updates.titleStyle = titleStyle || null;
+    }
+
+    if (subtitleStyle !== undefined) {
+      updates.subtitleStyle = subtitleStyle || null;
     }
 
     const updatedHero = await db

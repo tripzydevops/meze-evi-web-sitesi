@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, description, imageUrl, buttonText, buttonLink } = body;
+    const { title, description, imageUrl, buttonText, buttonLink, titleStyle, descriptionStyle } = body;
 
     // Validate required fields
     if (!title || typeof title !== 'string' || title.trim() === '') {
@@ -80,11 +80,15 @@ export async function POST(request: NextRequest) {
       imageUrl?: string;
       buttonText?: string;
       buttonLink?: string;
+      titleStyle?: string | null;
+      descriptionStyle?: string | null;
       createdAt: Date;
       updatedAt: Date;
     } = {
       title: title.trim(),
       description: description.trim(),
+      titleStyle: titleStyle || null,
+      descriptionStyle: descriptionStyle || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -143,7 +147,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, imageUrl, buttonText, buttonLink } = body;
+    const { title, description, imageUrl, buttonText, buttonLink, titleStyle, descriptionStyle } = body;
 
     // Build update object with only provided fields
     const updates: {
@@ -152,6 +156,8 @@ export async function PUT(request: NextRequest) {
       imageUrl?: string | null;
       buttonText?: string | null;
       buttonLink?: string | null;
+      titleStyle?: string | null;
+      descriptionStyle?: string | null;
       updatedAt: Date;
     } = {
       updatedAt: new Date(),
@@ -188,6 +194,14 @@ export async function PUT(request: NextRequest) {
 
     if (buttonLink !== undefined) {
       updates.buttonLink = buttonLink === null ? null : (typeof buttonLink === 'string' ? buttonLink.trim() : buttonLink);
+    }
+
+    if (titleStyle !== undefined) {
+      updates.titleStyle = titleStyle || null;
+    }
+
+    if (descriptionStyle !== undefined) {
+      updates.descriptionStyle = descriptionStyle || null;
     }
 
     // Check if there are fields to update besides updatedAt
