@@ -26,22 +26,22 @@ export default function Navigation() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 shrink-0">
+          <Link href="/" className="flex items-center gap-3 shrink-0 h-full py-2">
             <Image
               src="/brand/logo.jpg"
               alt="Bi Special Logo"
-              width={65}
-              height={65}
-              className="object-contain rounded-full border-2 border-primary/20"
+              width={60}
+              height={60}
+              className="w-[60px] h-[60px] object-contain rounded-full border-2 border-primary/20"
             />
-            <Image
-              src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/document-uploads/download-1760438706128.png"
-              alt="Bi Special"
-              width={180}
-              height={0}
-              style={{ height: 'auto' }}
-              className="object-contain"
-            />
+            <div className="relative h-12 w-[160px]">
+              <Image
+                src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/document-uploads/download-1760438706128.png"
+                alt="Bi Special"
+                fill
+                className="object-contain object-left"
+              />
+            </div>
           </Link>
 
           {/* Desktop Search & Contact (Utilization of space) */}
