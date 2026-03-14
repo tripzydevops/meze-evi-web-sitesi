@@ -99,6 +99,13 @@ interface GalleryImage {
   alt: string | null
 }
 
+const families = ["font-serif", "font-sans"]
+const sizes = ["text-sm", "text-base", "text-lg", "text-xl", "text-2xl", "text-3xl", "text-4xl", "text-5xl", "text-6xl", "text-7xl"]
+const weights = ["font-light", "font-normal", "font-medium", "font-semibold", "font-bold", "font-extrabold"]
+const aligns = ["text-left", "text-center", "text-right"]
+const colors = ["text-primary", "text-amber-600", "text-gray-500", "text-white"]
+const margins = ["mb-0", "mb-2", "mb-4", "mb-6", "mb-8", "mb-10"]
+
 const StyleControls = ({ 
   prefix, 
   value, 
@@ -110,12 +117,12 @@ const StyleControls = ({
 }) => {
   const parts = value.split(' ')
   
-  const getFamily = () => parts.find(p => p.startsWith('font-')) || 'font-serif'
-  const getSize = () => parts.find(p => p.startsWith('text-')) || 'text-4xl'
-  const getWeight = () => parts.find(p => p.startsWith('font-') && p !== getFamily()) || 'font-bold'
-  const getAlign = () => parts.find(p => p.startsWith('text-') && p !== getSize()) || 'text-left'
-  const getMargin = () => parts.find(p => p.startsWith('mb-')) || 'mb-6'
-  const getColor = () => parts.find(p => p.startsWith('text-') && !p.startsWith('text-left') && !p.startsWith('text-center') && !p.startsWith('text-right') && !p.startsWith('text-4xl') && !p.startsWith('text-5xl') && !p.startsWith('text-6xl') && !p.startsWith('text-7xl') && !p.startsWith('text-xl') && !p.startsWith('text-lg') && !p.startsWith('text-base') && !p.startsWith('text-sm') && !p.includes('xs')) || 'none'
+  const getFamily = () => parts.find(p => families.includes(p)) || 'font-serif'
+  const getSize = () => parts.find(p => sizes.includes(p)) || 'text-4xl'
+  const getWeight = () => parts.find(p => weights.includes(p)) || 'font-bold'
+  const getAlign = () => parts.find(p => aligns.includes(p)) || 'text-left'
+  const getMargin = () => parts.find(p => margins.includes(p)) || 'mb-6'
+  const getColor = () => parts.find(p => colors.includes(p)) || 'none'
 
   const updateStyle = (newParts: Partial<{ family: string, size: string, weight: string, align: string, margin: string, color: string }>) => {
     const current = {
