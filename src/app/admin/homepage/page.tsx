@@ -127,7 +127,7 @@ const StyleControls = ({
       color: getColor()
     }
     const final = { ...current, ...newParts }
-    onChange(Object.values(final).filter(v => v && v !== 'none').join(' '))
+    onChange(Object.values(final).filter(v => v && v !== 'none' && v !== '').join(' '))
   }
 
   return (
