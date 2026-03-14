@@ -115,7 +115,7 @@ const StyleControls = ({
   const getWeight = () => parts.find(p => p.startsWith('font-') && p !== getFamily()) || 'font-bold'
   const getAlign = () => parts.find(p => p.startsWith('text-') && p !== getSize()) || 'text-left'
   const getMargin = () => parts.find(p => p.startsWith('mb-')) || 'mb-6'
-  const getColor = () => parts.find(p => p.startsWith('text-') && !p.startsWith('text-left') && !p.startsWith('text-center') && !p.startsWith('text-right') && !p.startsWith('text-4xl') && !p.startsWith('text-5xl') && !p.startsWith('text-6xl') && !p.startsWith('text-7xl') && !p.startsWith('text-xl') && !p.startsWith('text-lg') && !p.startsWith('text-base') && !p.startsWith('text-sm') && !p.includes('xs')) || ''
+  const getColor = () => parts.find(p => p.startsWith('text-') && !p.startsWith('text-left') && !p.startsWith('text-center') && !p.startsWith('text-right') && !p.startsWith('text-4xl') && !p.startsWith('text-5xl') && !p.startsWith('text-6xl') && !p.startsWith('text-7xl') && !p.startsWith('text-xl') && !p.startsWith('text-lg') && !p.startsWith('text-base') && !p.startsWith('text-sm') && !p.includes('xs')) || 'none'
 
   const updateStyle = (newParts: Partial<{ family: string, size: string, weight: string, align: string, margin: string, color: string }>) => {
     const current = {
@@ -127,7 +127,7 @@ const StyleControls = ({
       color: getColor()
     }
     const final = { ...current, ...newParts }
-    onChange(Object.values(final).filter(Boolean).join(' '))
+    onChange(Object.values(final).filter(v => v && v !== 'none').join(' '))
   }
 
   return (
@@ -190,7 +190,7 @@ const StyleControls = ({
         <Select value={getColor()} onValueChange={(val) => updateStyle({ color: val })}>
           <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Varsayılan</SelectItem>
+            <SelectItem value="none">Varsayılan</SelectItem>
             <SelectItem value="text-primary">Bordo (Tema)</SelectItem>
             <SelectItem value="text-amber-600">Kehribar</SelectItem>
             <SelectItem value="text-gray-500">Gri</SelectItem>
