@@ -30,14 +30,14 @@ export default function Navigation() {
             <Image
               src="/brand/logo.jpg"
               alt="Bi Special Logo"
-              width={50}
-              height={50}
+              width={65}
+              height={65}
               className="object-contain rounded-full border-2 border-primary/20"
             />
             <Image
               src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/document-uploads/download-1760438706128.png"
               alt="Bi Special"
-              width={140}
+              width={180}
               height={0}
               style={{ height: 'auto' }}
               className="object-contain"
