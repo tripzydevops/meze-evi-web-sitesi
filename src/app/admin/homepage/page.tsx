@@ -5,25 +5,21 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-import { 
-  Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, ArrowLeft, Shield,
-  ChefHat, Star, Clock, MapPin, Utensils, Heart, Award, Coffee, Users, Sparkles, Mail
-} from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import Image from "next/image"
+import { ArrowLeft, LogOut, Shield } from "lucide-react"
 import Link from "next/link"
 
-// LucideIcons map for dynamic icon rendering
-const LucideIconMap: Record<string, React.ComponentType<any>> = {
-  ChefHat, Star, Clock, MapPin, Utensils, Heart, Award, Coffee, Users, Sparkles, Mail,
-  Loader2, Plus, Pencil, Trash2, AlertCircle, LogOut, Upload, X, ArrowLeft, Shield
-}
+// Modular components
+import { HeroTab } from "@/components/admin/homepage/HeroTab"
+import { FeaturesTab } from "@/components/admin/homepage/FeaturesTab"
+import { FeaturedHeaderTab } from "@/components/admin/homepage/FeaturedHeaderTab"
+import { DishesTab } from "@/components/admin/homepage/DishesTab"
+import { AboutTab } from "@/components/admin/homepage/AboutTab"
+import { GalleryPicker } from "@/components/admin/homepage/GalleryDialog"
+import { FeatureDialog } from "@/components/admin/homepage/FeatureDialog"
+import { DishDialog } from "@/components/admin/homepage/DishDialog"
 
 interface HeroSection {
   id: number
@@ -92,126 +88,13 @@ interface AboutSection {
   descriptionStyle: string | null
 }
 
-const iconList = ['ChefHat', 'Star', 'Clock', 'MapPin', 'Utensils', 'Heart', 'Award', 'Coffee', 'Users', 'Sparkles']
-
 interface GalleryImage {
   id: number
   url: string
   alt: string | null
 }
 
-const families = ["font-serif", "font-sans"]
-const sizes = ["text-sm", "text-base", "text-lg", "text-xl", "text-2xl", "text-3xl", "text-4xl", "text-5xl", "text-6xl", "text-7xl"]
-const weights = ["font-light", "font-normal", "font-medium", "font-semibold", "font-bold", "font-extrabold"]
-const aligns = ["text-left", "text-center", "text-right"]
-const colors = ["text-primary", "text-amber-600", "text-gray-500", "text-white"]
-const margins = ["mb-0", "mb-2", "mb-4", "mb-6", "mb-8", "mb-10"]
-
-const StyleControls = ({ 
-  prefix, 
-  value, 
-  onChange 
-}: { 
-  prefix: string, 
-  value: string, 
-  onChange: (val: string) => void 
-}) => {
-  const parts = (value || "").split(' ')
-  
-  const getFamily = () => parts.find(p => families.includes(p)) || 'font-serif'
-  const getSize = () => parts.find(p => sizes.includes(p)) || 'text-4xl'
-  const getWeight = () => parts.find(p => weights.includes(p)) || 'font-bold'
-  const getAlign = () => parts.find(p => aligns.includes(p)) || 'text-left'
-  const getMargin = () => parts.find(p => margins.includes(p)) || 'mb-6'
-  const getColor = () => parts.find(p => colors.includes(p)) || 'none'
-
-  const updateStyle = (newParts: Partial<{ family: string, size: string, weight: string, align: string, margin: string, color: string }>) => {
-    const current = {
-      family: getFamily(),
-      size: getSize(),
-      weight: getWeight(),
-      align: getAlign(),
-      margin: getMargin(),
-      color: getColor()
-    }
-    const final = { ...current, ...newParts }
-    onChange(Object.values(final).filter(v => v && v !== 'none' && v !== '').join(' '))
-  }
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 border rounded-md bg-muted/20">
-      <div className="space-y-1">
-        <span className="text-xs font-medium">{prefix} Yazı Tipi</span>
-        <Select value={getFamily()} onValueChange={(val) => updateStyle({ family: val })}>
-          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="font-serif">Serif (Zarif)</SelectItem>
-            <SelectItem value="font-sans">Sans (Modern)</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-1">
-        <span className="text-xs font-medium">Boyut</span>
-        <Select value={getSize()} onValueChange={(val) => updateStyle({ size: val })}>
-          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="text-sm">SM</SelectItem>
-            <SelectItem value="text-base">M</SelectItem>
-            <SelectItem value="text-lg">LG</SelectItem>
-            <SelectItem value="text-xl">XL</SelectItem>
-            <SelectItem value="text-2xl">2XL</SelectItem>
-            <SelectItem value="text-3xl">3XL</SelectItem>
-            <SelectItem value="text-4xl">4XL</SelectItem>
-            <SelectItem value="text-5xl">5XL</SelectItem>
-            <SelectItem value="text-6xl">6XL</SelectItem>
-            <SelectItem value="text-7xl">7XL</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-1">
-        <span className="text-xs font-medium">Kalınlık</span>
-        <Select value={getWeight()} onValueChange={(val) => updateStyle({ weight: val })}>
-          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="font-light">İnce</SelectItem>
-            <SelectItem value="font-normal">Normal</SelectItem>
-            <SelectItem value="font-medium">Orta</SelectItem>
-            <SelectItem value="font-semibold">Yarı Kalın</SelectItem>
-            <SelectItem value="font-bold">Kalın</SelectItem>
-            <SelectItem value="font-extrabold">Çok Kalın</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-1">
-        <span className="text-xs font-medium">Hizalama</span>
-        <Select value={getAlign()} onValueChange={(val) => updateStyle({ align: val })}>
-          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="text-left">Sol</SelectItem>
-            <SelectItem value="text-center">Orta</SelectItem>
-            <SelectItem value="text-right">Sağ</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-1">
-        <span className="text-xs font-medium">Renk</span>
-        <Select value={getColor() || "none"} onValueChange={(val) => updateStyle({ color: val })}>
-          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Varsayılan</SelectItem>
-            <SelectItem value="text-primary">Bordo (Tema)</SelectItem>
-            <SelectItem value="text-amber-600">Kehribar</SelectItem>
-            <SelectItem value="text-gray-500">Gri</SelectItem>
-            <SelectItem value="text-white">Beyaz</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  )
-}
-
 export default function HomepageAdminPage() {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   
   // Data states
@@ -258,8 +141,6 @@ export default function HomepageAdminPage() {
       toast.error("Hatalı şifre")
     }
   }
-
-  const isAdmin = true 
 
   useEffect(() => {
     if (isPasswordVerified || localStorage.getItem("admin_auth") === "true") {
@@ -324,10 +205,6 @@ export default function HomepageAdminPage() {
   const handleHeroImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (!file.type.startsWith("image/")) {
-      toast.error("Lütfen bir resim dosyası seçin")
-      return
-    }
     const reader = new FileReader()
     reader.onloadend = () => setHeroImage({ file, preview: reader.result as string })
     reader.readAsDataURL(file)
@@ -336,10 +213,6 @@ export default function HomepageAdminPage() {
   const handleAboutImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (!file.type.startsWith("image/")) {
-      toast.error("Lütfen bir resim dosyası seçin")
-      return
-    }
     const reader = new FileReader()
     reader.onloadend = () => setAboutImage({ file, preview: reader.result as string })
     reader.readAsDataURL(file)
@@ -355,16 +228,8 @@ export default function HomepageAdminPage() {
     try {
       const formData = new FormData()
       formData.append("file", file)
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error("Upload failed")
-      }
-
+      const response = await fetch("/api/upload", { method: "POST", body: formData })
+      if (!response.ok) throw new Error("Upload failed")
       const data = await response.json()
       return data.url
     } catch (error) {
@@ -375,23 +240,16 @@ export default function HomepageAdminPage() {
     }
   }
 
-  // Hero Section Handlers
   const handleHeroUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    
     try {
       let imageUrl = formData.get("backgroundImageUrl") as string
-      
       if (heroImage.file) {
         const uploadedUrl = await handleUploadImage(heroImage.file)
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl
-        } else {
-          return
-        }
+        if (uploadedUrl) imageUrl = uploadedUrl
+        else return
       }
-
       const payload = {
         title: formData.get("title"),
         subtitle: formData.get("subtitle"),
@@ -403,209 +261,103 @@ export default function HomepageAdminPage() {
         titleStyle: heroData?.titleStyle,
         subtitleStyle: heroData?.subtitleStyle,
       }
-
       const response = await fetch(`/api/homepage-hero?id=${heroData?.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
       })
-
       if (response.ok) {
         toast.success("Hero bölümü güncellendi")
         setHeroImage({ file: null, preview: "" })
         fetchAllData()
-      } else {
-        toast.error("Güncelleme başarısız")
       }
     } catch (error) {
       toast.error("Bir hata oluştu")
     }
   }
 
-  // Feature Handlers
-  const openFeatureDialog = (feature?: Feature) => {
-    setEditingFeature(feature || null)
-    setIsFeatureDialogOpen(true)
-  }
-
   const handleFeatureSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-
     const payload = {
       icon: formData.get("icon"),
       title: formData.get("title"),
       description: formData.get("description"),
       displayOrder: parseInt(formData.get("displayOrder") as string)
     }
-
     try {
-      let response
-      if (editingFeature) {
-        response = await fetch(`/api/homepage-features?id=${editingFeature.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        })
-      } else {
-        response = await fetch("/api/homepage-features", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        })
-      }
-
-      if (response.ok) {
-        toast.success(editingFeature ? "Özellik güncellendi" : "Özellik eklendi")
+      const resp = await fetch(editingFeature ? `/api/homepage-features?id=${editingFeature.id}` : "/api/homepage-features", {
+        method: editingFeature ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      if (resp.ok) {
+        toast.success(editingFeature ? "Güncellendi" : "Eklendi")
         setIsFeatureDialogOpen(false)
         setEditingFeature(null)
         fetchAllData()
-      } else {
-        toast.error("İşlem başarısız")
       }
-    } catch (error) {
-      toast.error("Bir hata oluştu")
-    }
+    } catch (error) { toast.error("Hata") }
   }
 
   const handleFeatureDelete = async (id: number) => {
-    if (!confirm("Bu özelliği silmek istediğinizden emin misiniz?")) return
-
+    if (!confirm("Emin misiniz?")) return
     try {
-      const response = await fetch(`/api/homepage-features?id=${id}`, {
-        method: "DELETE"
-      })
-
-      if (response.ok) {
-        toast.success("Özellik silindi")
-        fetchAllData()
-      } else {
-        toast.error("Silme işlemi başarısız")
-      }
-    } catch (error) {
-      toast.error("Bir hata oluştu")
-    }
+      const resp = await fetch(`/api/homepage-features?id=${id}`, { method: "DELETE" })
+      if (resp.ok) { toast.success("Silindi"); fetchAllData() }
+    } catch (error) { toast.error("Hata") }
   }
 
-  // Featured Section Handlers
   const handleFeaturedSectionUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-
     const payload = {
       sectionTitle: formData.get("sectionTitle"),
       sectionDescription: formData.get("sectionDescription")
     }
-
     try {
       const response = await fetch(`/api/homepage-featured-section?id=${featuredSection?.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
       })
-
-      if (response.ok) {
-        toast.success("Öne çıkan bölüm güncellendi")
-        fetchAllData()
-      } else {
-        toast.error("Güncelleme başarısız")
-      }
-    } catch (error) {
-      toast.error("Bir hata oluştu")
-    }
-  }
-
-  // Featured Dish Handlers
-  const openDishDialog = (dish?: FeaturedDish) => {
-    setEditingDish(dish || null)
-    setDishPreview("")
-    setIsDishDialogOpen(true)
+      if (response.ok) { toast.success("Güncellendi"); fetchAllData() }
+    } catch (error) { toast.error("Hata") }
   }
 
   const handleDishSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-
-    const menuItemId = formData.get("menuItemId") as string
-    const displayOrder = formData.get("displayOrder") as string
-
-    if (!menuItemId) {
-      toast.error("Lütfen bir menü öğesi seçin")
-      return
-    }
-
     try {
       const payload = {
-        menuItemId: parseInt(menuItemId),
-        displayOrder: parseInt(displayOrder)
+        menuItemId: parseInt(formData.get("menuItemId") as string),
+        displayOrder: parseInt(formData.get("displayOrder") as string)
       }
-
-      let response
-      if (editingDish) {
-        response = await fetch(`/api/homepage-featured-dishes?id=${editingDish.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        })
-      } else {
-        response = await fetch("/api/homepage-featured-dishes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        })
+      const resp = await fetch(editingDish ? `/api/homepage-featured-dishes?id=${editingDish.id}` : "/api/homepage-featured-dishes", {
+        method: editingDish ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      if (resp.ok) {
+        setIsDishDialogOpen(false); setEditingDish(null); setDishPreview(""); fetchAllData()
       }
-
-      if (response.ok) {
-        toast.success(editingDish ? "Yemek güncellendi" : "Yemek eklendi")
-        setIsDishDialogOpen(false)
-        setEditingDish(null)
-        setDishPreview("")
-        fetchAllData()
-      } else {
-        const error = await response.json()
-        toast.error(error.error || "İşlem başarısız")
-      }
-    } catch (error) {
-      toast.error("Bir hata oluştu")
-    }
+    } catch (error) { toast.error("Hata") }
   }
 
   const handleDishDelete = async (id: number) => {
-    if (!confirm("Bu yemeği silmek istediğinizden emin misiniz?")) return
-
+    if (!confirm("Emin misiniz?")) return
     try {
-      const response = await fetch(`/api/homepage-featured-dishes?id=${id}`, {
-        method: "DELETE"
-      })
-
-      if (response.ok) {
-        toast.success("Yemek silindi")
-        fetchAllData()
-      } else {
-        toast.error("Silme işlemi başarısız")
-      }
-    } catch (error) {
-      toast.error("Bir hata oluştu")
-    }
+      const resp = await fetch(`/api/homepage-featured-dishes?id=${id}`, { method: "DELETE" })
+      if (resp.ok) { toast.success("Silindi"); fetchAllData() }
+    } catch (error) { toast.error("Hata") }
   }
 
-  // About Section Handlers
   const handleAboutUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-
     try {
       let imageUrl = formData.get("imageUrl") as string
-      
       if (aboutImage.file) {
         const uploadedUrl = await handleUploadImage(aboutImage.file)
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl
-        } else {
-          return
-        }
+        if (uploadedUrl) imageUrl = uploadedUrl
+        else return
       }
-
       const payload = {
         title: formData.get("title"),
         description: formData.get("description"),
@@ -615,23 +367,13 @@ export default function HomepageAdminPage() {
         titleStyle: aboutSection?.titleStyle,
         descriptionStyle: aboutSection?.descriptionStyle,
       }
-
       const response = await fetch(`/api/homepage-about-section?id=${aboutSection?.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
       })
-
       if (response.ok) {
-        toast.success("Hakkımızda bölümü güncellendi")
-        setAboutImage({ file: null, preview: "" })
-        fetchAllData()
-      } else {
-        toast.error("Güncelleme başarısız")
+        toast.success("Güncellendi"); setAboutImage({ file: null, preview: "" }); fetchAllData()
       }
-    } catch (error) {
-      toast.error("Bir hata oluştu")
-    }
+    } catch (error) { toast.error("Hata") }
   }
 
   if (!isPasswordVerified) {
@@ -639,28 +381,18 @@ export default function HomepageAdminPage() {
       <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <Shield className="h-12 w-12 text-primary" />
-            </div>
+            <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
             <CardTitle>Yönetim Paneli Girişi</CardTitle>
             <CardDescription>Devam etmek için şifreyi girin</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="admin-password">Şifre</Label>
-                <Input
-                   id="admin-password"
-                   type="password"
-                   placeholder="••••"
-                   value={passwordInput}
-                   onChange={(e) => setPasswordInput(e.target.value)}
-                   autoFocus
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                Giriş Yap
-              </Button>
+              <Input
+                 type="password" placeholder="••••"
+                 value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)}
+                 autoFocus
+              />
+              <Button type="submit" className="w-full">Giriş Yap</Button>
             </form>
           </CardContent>
         </Card>
@@ -670,650 +402,116 @@ export default function HomepageAdminPage() {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <header className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/admin">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-serif font-bold">Ana Sayfa Yönetimi</h1>
-                <p className="text-sm text-muted-foreground">Hoş geldiniz, Yönetici</p>
-              </div>
+      <header className="bg-white border-b sticky top-0 z-10 transition-all duration-300">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/admin">
+              <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-serif font-bold">Ana Sayfa Yönetimi</h1>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">Hoş geldiniz, Yönetici</p>
             </div>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Çıkış Yap
-            </Button>
           </div>
+          <Button variant="outline" onClick={handleSignOut}><LogOut className="mr-2 h-4 w-4" /> Çıkış </Button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="container mx-auto px-4 py-8 animate-in fade-in duration-500">
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="hero">Hero</TabsTrigger>
-            <TabsTrigger value="features">Özellikler</TabsTrigger>
-            <TabsTrigger value="featured">Öne Çıkanlar</TabsTrigger>
-            <TabsTrigger value="dishes">Yemekler</TabsTrigger>
-            <TabsTrigger value="about">Hakkımızda</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 p-1 bg-white/50 backdrop-blur rounded-xl border">
+            <TabsTrigger value="hero" className="rounded-lg">Hero</TabsTrigger>
+            <TabsTrigger value="features" className="rounded-lg">Özellikler</TabsTrigger>
+            <TabsTrigger value="featured" className="rounded-lg">Öne Çıkanlar</TabsTrigger>
+            <TabsTrigger value="dishes" className="rounded-lg">Yemekler</TabsTrigger>
+            <TabsTrigger value="about" className="rounded-lg">Hakkımızda</TabsTrigger>
           </TabsList>
 
-          {/* Hero Section */}
-          <TabsContent value="hero">
-            <Card>
-              <CardHeader>
-                <CardTitle>Hero Bölümü</CardTitle>
-                <CardDescription>Ana sayfa hero bölümünü düzenleyin</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {heroData && (
-                  <form onSubmit={handleHeroUpdate} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Başlık *</Label>
-                      <Input
-                        id="title"
-                        name="title"
-                        defaultValue={heroData.title}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="subtitle">Alt Başlık</Label>
-                      <Textarea
-                        id="subtitle"
-                        name="subtitle"
-                        defaultValue={heroData.subtitle || ""}
-                        rows={2}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="primaryButtonText">Birincil Buton Metni</Label>
-                        <Input
-                          id="primaryButtonText"
-                          name="primaryButtonText"
-                          defaultValue={heroData.primaryButtonText || ""}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="primaryButtonLink">Birincil Buton Linki</Label>
-                        <Input
-                          id="primaryButtonLink"
-                          name="primaryButtonLink"
-                          defaultValue={heroData.primaryButtonLink || ""}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="secondaryButtonText">İkincil Buton Metni</Label>
-                        <Input
-                          id="secondaryButtonText"
-                          name="secondaryButtonText"
-                          defaultValue={heroData.secondaryButtonText || ""}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="secondaryButtonLink">İkincil Buton Linki</Label>
-                        <Input
-                          id="secondaryButtonLink"
-                          name="secondaryButtonLink"
-                          defaultValue={heroData.secondaryButtonLink || ""}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <StyleControls 
-                        prefix="Başlık" 
-                        value={heroData.titleStyle || "font-serif text-5xl md:text-7xl font-bold mb-6"} 
-                        onChange={(val) => setHeroData({...heroData, titleStyle: val})} 
-                      />
-                      <StyleControls 
-                        prefix="Alt Başlık" 
-                        value={heroData.subtitleStyle || "text-xl md:text-2xl mb-8 text-gray-200"} 
-                        onChange={(val) => setHeroData({...heroData, subtitleStyle: val})} 
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label>Arka Plan Resmi</Label>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            setGalleryTarget("hero")
-                            setIsGalleryOpen(true)
-                          }}
-                        >
-                          Galleriden Seç
-                        </Button>
-                      </div>
-                      {heroImage.preview || heroData.backgroundImageUrl ? (
-                        <div className="relative w-full h-48 border rounded-lg overflow-hidden">
-                          <Image
-                            src={heroImage.preview || heroData.backgroundImageUrl || ""}
-                            alt="Background"
-                            fill
-                            className="object-cover"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="absolute top-2 right-2"
-                            onClick={() => {
-                              setHeroImage({ file: null, preview: "" })
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                          <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleHeroImageSelect}
-                          />
-                        </div>
-                      )}
-                      <Input
-                        id="backgroundImageUrl"
-                        name="backgroundImageUrl"
-                        defaultValue={heroData.backgroundImageUrl || ""}
-                        placeholder="Veya resim URL'si girin"
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            setHeroImage({ file: null, preview: e.target.value })
-                          }
-                        }}
-                      />
-                    </div>
-
-                    <Button type="submit" disabled={uploadingImage}>
-                      {uploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                      Kaydet
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
+          <TabsContent value="hero" className="space-y-4">
+            <HeroTab 
+              heroData={heroData} 
+              heroImage={heroImage} 
+              uploadingImage={uploadingImage}
+              onHeroUpdate={handleHeroUpdate}
+              onStyleChange={(field, val) => heroData && setHeroData({ ...heroData, [field]: val })}
+              onGalleryOpen={() => { setGalleryTarget("hero"); setIsGalleryOpen(true) }}
+              onImageSelect={handleHeroImageSelect}
+              onImageClear={() => setHeroImage({ file: null, preview: "" })}
+              onUrlChange={(url) => setHeroImage({ file: null, preview: url })}
+            />
           </TabsContent>
 
-          {/* Features Section */}
           <TabsContent value="features">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle>Özellikler</CardTitle>
-                    <CardDescription>Ana sayfa özelliklerini yönetin</CardDescription>
-                  </div>
-                  <Button onClick={() => openFeatureDialog()}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Yeni Özellik
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {features.map(feature => {
-                    const IconComponent = LucideIconMap[feature.icon]
-                    return (
-                      <div key={feature.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          {IconComponent && <IconComponent className="w-6 h-6 text-primary" />}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{feature.title}</h3>
-                          <p className="text-sm text-muted-foreground">{feature.description}</p>
-                          <p className="text-xs text-muted-foreground mt-1">Sıra: {feature.displayOrder}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => openFeatureDialog(feature)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleFeatureDelete(feature.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </CardContent>
-            </Card>
+            <FeaturesTab 
+              features={features}
+              onAdd={() => { setEditingFeature(null); setIsFeatureDialogOpen(true) }}
+              onEdit={(f) => { setEditingFeature(f); setIsFeatureDialogOpen(true) }}
+              onDelete={handleFeatureDelete}
+            />
           </TabsContent>
 
-          {/* Featured Section Header */}
-          <TabsContent value="featured">
-            <Card>
-              <CardHeader>
-                <CardTitle>Öne Çıkan Bölüm Başlığı</CardTitle>
-                <CardDescription>Öne çıkan yemekler bölümünün başlığını düzenleyin</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {featuredSection && (
-                  <form onSubmit={handleFeaturedSectionUpdate} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="sectionTitle">Bölüm Başlığı *</Label>
-                      <Input
-                        id="sectionTitle"
-                        name="sectionTitle"
-                        defaultValue={featuredSection.sectionTitle}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="sectionDescription">Bölüm Açıklaması</Label>
-                      <Textarea
-                        id="sectionDescription"
-                        name="sectionDescription"
-                        defaultValue={featuredSection.sectionDescription || ""}
-                        rows={3}
-                      />
-                    </div>
-
-                    <Button type="submit">Kaydet</Button>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
+          <TabsContent value="featured" className="space-y-4">
+            <FeaturedHeaderTab 
+              featuredSection={featuredSection}
+              onSubmit={handleFeaturedSectionUpdate}
+            />
           </TabsContent>
 
-          {/* Featured Dishes */}
           <TabsContent value="dishes">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle>Öne Çıkan Yemekler</CardTitle>
-                    <CardDescription>Ana sayfada gösterilecek yemekleri yönetin</CardDescription>
-                  </div>
-                  <Button onClick={() => openDishDialog()}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Yeni Yemek
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {featuredDishes.map(dish => (
-                    <div key={dish.id} className="border rounded-lg overflow-hidden">
-                      {dish.menuItem.imageUrl && (
-                        <div className="relative h-40">
-                          <Image
-                            src={dish.menuItem.imageUrl}
-                            alt={dish.menuItem.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      )}
-                      <div className="p-4 space-y-2">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-semibold">{dish.menuItem.name}</h3>
-                          <span className="text-primary font-bold">{dish.menuItem.price}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{dish.menuItem.description}</p>
-                        <p className="text-xs text-muted-foreground">Sıra: {dish.displayOrder}</p>
-                        <div className="flex gap-2 pt-2">
-                          <Button variant="outline" size="sm" onClick={() => openDishDialog(dish)} className="flex-1">
-                            <Pencil className="h-4 w-4 mr-1" />
-                            Düzenle
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleDishDelete(dish.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <DishesTab 
+              featuredDishes={featuredDishes}
+              onAdd={() => { setEditingDish(null); setDishPreview(""); setIsDishDialogOpen(true) }}
+              onEdit={(d) => { setEditingDish(d); setDishPreview(d.menuItem.imageUrl || ""); setIsDishDialogOpen(true) }}
+              onDelete={handleDishDelete}
+            />
           </TabsContent>
 
-          {/* About Section */}
           <TabsContent value="about">
-            <Card>
-              <CardHeader>
-                <CardTitle>Hakkımızda Bölümü</CardTitle>
-                <CardDescription>Ana sayfa hakkımızda bölümünü düzenleyin</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {aboutSection && (
-                  <form onSubmit={handleAboutUpdate} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="aboutTitle">Başlık *</Label>
-                      <Input
-                        id="aboutTitle"
-                        name="title"
-                        value={aboutSection.title}
-                        onChange={(e) => setAboutSection({ ...aboutSection, title: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="aboutDescription">Açıklama *</Label>
-                      <Textarea
-                        id="aboutDescription"
-                        name="description"
-                        value={aboutSection.description}
-                        onChange={(e) => setAboutSection({ ...aboutSection, description: e.target.value })}
-                        rows={6}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-4">
-                      <StyleControls 
-                        prefix="Başlık" 
-                        value={aboutSection.titleStyle || "font-serif text-4xl md:text-5xl font-bold mb-6"} 
-                        onChange={(val) => setAboutSection({...aboutSection, titleStyle: val})} 
-                      />
-                      <StyleControls 
-                        prefix="Açıklama" 
-                        value={aboutSection.descriptionStyle || "text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line"} 
-                        onChange={(val) => setAboutSection({...aboutSection, descriptionStyle: val})} 
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label>Resim</Label>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            setGalleryTarget("about")
-                            setIsGalleryOpen(true)
-                          }}
-                        >
-                          Galleriden Seç
-                        </Button>
-                      </div>
-                      {aboutImage.preview || aboutSection.imageUrl ? (
-                        <div className="relative w-full h-48 border rounded-lg overflow-hidden">
-                          <Image
-                            src={aboutImage.preview || aboutSection.imageUrl || ""}
-                            alt="About"
-                            fill
-                            className="object-cover"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="absolute top-2 right-2"
-                            onClick={() => {
-                              setAboutImage({ file: null, preview: "" })
-                              setAboutSection({ ...aboutSection, imageUrl: null })
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                          <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAboutImageSelect}
-                          />
-                        </div>
-                      )}
-                      <Input
-                        id="aboutImageUrl"
-                        name="imageUrl"
-                        value={aboutSection.imageUrl || ""}
-                        onChange={(e) => setAboutSection({ ...aboutSection, imageUrl: e.target.value })}
-                        placeholder="Veya resim URL'si girin"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="aboutButtonText">Buton Metni</Label>
-                        <Input
-                          id="aboutButtonText"
-                          name="buttonText"
-                          value={aboutSection.buttonText || ""}
-                          onChange={(e) => setAboutSection({ ...aboutSection, buttonText: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="aboutButtonLink">Buton Linki</Label>
-                        <Input
-                          id="aboutButtonLink"
-                          name="buttonLink"
-                          value={aboutSection.buttonLink || ""}
-                          onChange={(e) => setAboutSection({ ...aboutSection, buttonLink: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <Button type="submit" disabled={uploadingImage}>
-                      {uploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                      Kaydet
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
+            <AboutTab 
+              aboutSection={aboutSection}
+              aboutImage={aboutImage}
+              uploadingImage={uploadingImage}
+              onAboutUpdate={handleAboutUpdate}
+              onAboutChange={setAboutSection}
+              onStyleChange={(field, val) => aboutSection && setAboutSection({ ...aboutSection, [field]: val })}
+              onGalleryOpen={() => { setGalleryTarget("about"); setIsGalleryOpen(true) }}
+              onImageSelect={handleAboutImageSelect}
+              onImageClear={() => setAboutImage({ file: null, preview: "" })}
+            />
           </TabsContent>
         </Tabs>
       </main>
 
-      {/* Feature Dialog */}
-      <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingFeature ? "Özelliği Düzenle" : "Yeni Özellik Ekle"}</DialogTitle>
-            <DialogDescription>Özellik bilgilerini girin</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleFeatureSubmit}>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="icon">İkon *</Label>
-                <Select name="icon" defaultValue={editingFeature?.icon || "ChefHat"} required>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {iconList.map(icon => {
-                      const IconComponent = (LucideIconMap as any)[icon]
-                      return (
-                        <SelectItem key={icon} value={icon}>
-                          <div className="flex items-center gap-2">
-                            {IconComponent && <IconComponent className="w-4 h-4" />}
-                            {icon}
-                          </div>
-                        </SelectItem>
-                      )
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
+      <FeatureDialog 
+        isOpen={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}
+        editingFeature={editingFeature} onSubmit={handleFeatureSubmit}
+      />
 
-              <div className="space-y-2">
-                <Label htmlFor="featureTitle">Başlık *</Label>
-                <Input
-                  id="featureTitle"
-                  name="title"
-                  defaultValue={editingFeature?.title}
-                  required
-                />
-              </div>
+      <DishDialog 
+        isOpen={isDishDialogOpen} onOpenChange={setIsDishDialogOpen}
+        editingDish={editingDish} menuItems={menuItems} dishPreview={dishPreview}
+        onMenuItemChange={(val) => {
+          const item = menuItems.find(i => i.id === parseInt(val))
+          setDishPreview(item?.imageUrl || "")
+        }}
+        onSubmit={handleDishSubmit}
+        onCancel={() => { setIsDishDialogOpen(false); setEditingDish(null); setDishPreview("") }}
+      />
 
-              <div className="space-y-2">
-                <Label htmlFor="featureDescription">Açıklama</Label>
-                <Textarea
-                  id="featureDescription"
-                  name="description"
-                  defaultValue={editingFeature?.description || ""}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="displayOrder">Sıra</Label>
-                <Input
-                  id="displayOrder"
-                  name="displayOrder"
-                  type="number"
-                  defaultValue={editingFeature?.displayOrder || 0}
-                  required
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsFeatureDialogOpen(false)}>
-                İptal
-              </Button>
-              <Button type="submit">
-                {editingFeature ? "Güncelle" : "Ekle"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dish Dialog */}
-      <Dialog open={isDishDialogOpen} onOpenChange={setIsDishDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingDish ? "Yemeği Düzenle" : "Yeni Yemek Ekle"}</DialogTitle>
-            <DialogDescription>
-              Mevcut menü öğelerinden bir yemek seçin ve sırasını belirleyin
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleDishSubmit}>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="menuItemId">Menü Öğesi Seç *</Label>
-                <Select
-                  name="menuItemId"
-                  defaultValue={editingDish?.menuItemId.toString()}
-                  required
-                  onValueChange={(value) => {
-                    const selectedItem = menuItems.find(item => item.id === parseInt(value))
-                    if (selectedItem?.imageUrl) {
-                      setDishPreview(selectedItem.imageUrl)
-                    } else {
-                      setDishPreview("")
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Bir menü öğesi seçin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {menuItems.map(item => (
-                      <SelectItem key={item.id} value={item.id.toString()}>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{item.name}</span>
-                          {item.price && <span className="text-muted-foreground text-sm">- {item.price}</span>}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {dishPreview && (
-                <div className="space-y-2">
-                  <Label>Önizleme</Label>
-                  <div className="relative w-full h-48 border rounded-lg overflow-hidden">
-                    <Image
-                      src={dishPreview}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="dishDisplayOrder">Sıra *</Label>
-                <Input
-                  id="dishDisplayOrder"
-                  name="displayOrder"
-                  type="number"
-                  defaultValue={editingDish?.displayOrder || 0}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  Ana sayfada gösterilme sırası (küçükten büyüğe)
-                </p>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setIsDishDialogOpen(false)
-                  setEditingDish(null)
-                  setDishPreview("")
-                }}
-              >
-                İptal
-              </Button>
-              <Button type="submit">
-                {editingDish ? "Güncelle" : "Ekle"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Gallery Dialog */}
-      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Galleriden Resim Seç</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
-            {gallery.map(img => (
-              <div 
-                key={img.id} 
-                className="relative aspect-square border rounded-lg overflow-hidden cursor-pointer hover:border-primary"
-                onClick={() => {
-                  if (galleryTarget === "hero") {
-                    setHeroImage({ file: null, preview: img.url })
-                    if (heroData) setHeroData({ ...heroData, backgroundImageUrl: img.url })
-                  } else if (galleryTarget === "about") {
-                    setAboutImage({ file: null, preview: img.url })
-                    if (aboutSection) setAboutSection({ ...aboutSection, imageUrl: img.url })
-                  }
-                  setIsGalleryOpen(false)
-                }}
-              >
-                <Image src={img.url} alt={img.alt || ""} fill className="object-cover" />
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <GalleryPicker 
+        isOpen={isGalleryOpen} onOpenChange={setIsGalleryOpen}
+        gallery={gallery} target={galleryTarget}
+        onSelect={(url) => {
+          if (galleryTarget === "hero") {
+            setHeroImage({ file: null, preview: url })
+            if (heroData) setHeroData({ ...heroData, backgroundImageUrl: url })
+          } else {
+            setAboutImage({ file: null, preview: url })
+            if (aboutSection) setAboutSection({ ...aboutSection, imageUrl: url })
+          }
+          setIsGalleryOpen(false)
+        }}
+      />
     </div>
   )
 }
