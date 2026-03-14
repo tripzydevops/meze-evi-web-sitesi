@@ -114,6 +114,12 @@ interface FormData {
   newCategoryName?: string
 }
 
+interface GalleryImage {
+  id: number
+  url: string
+  alt: string | null
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
@@ -160,6 +166,9 @@ export default function AdminPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>("")
   const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false)
+  
+  const [gallery, setGallery] = useState<GalleryImage[]>([])
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
 
   const [isPasswordVerified, setIsPasswordVerified] = useState(false)
   const [passwordInput, setPasswordInput] = useState("")
@@ -231,6 +240,12 @@ export default function AdminPage() {
       if (cateringRes.ok) {
         const cateringData = await cateringRes.json()
         setCateringInquiries(cateringData)
+      }
+
+      const galleryRes = await fetch("/api/gallery")
+      if (galleryRes.ok) {
+        const data = await galleryRes.json()
+        setGallery(data)
       }
     } catch (error) {
       toast.error("Veriler yüklenirken hata oluştu")
@@ -1347,7 +1362,17 @@ export default function AdminPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Resim</Label>
+                <div className="flex justify-between items-center">
+                  <Label>Resim</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setIsGalleryOpen(true)}
+                  >
+                    Galleriden Seç
+                  </Button>
+                </div>
                 <div className="space-y-3">
                   {previewUrl ? (
                     <div className="relative w-full h-48 border rounded-lg overflow-hidden">

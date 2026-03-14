@@ -9,7 +9,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { Loader2, Plus, Pencil, Trash2, Shield, LogOut, Home, Eye, EyeOff, Star, FolderOpen } from "lucide-react"
+import { Loader2, Plus, Pencil, Trash2, Shield, LogOut, Home, Eye, EyeOff, Star, FolderOpen, Upload, X } from "lucide-react"
+import Image from "next/image"
+
+interface GalleryImage {
+  id: number
+  url: string
+  alt: string | null
+}
 
 interface Testimonial {
   id: number
@@ -34,8 +41,14 @@ export default function TestimonialAdminPage() {
     name: "",
     content: "",
     rating: "5",
-    displayOrder: "0"
+    displayOrder: "0",
+    imageUrl: ""
   })
+
+  const [gallery, setGallery] = useState<GalleryImage[]>([])
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState("")
 
   useEffect(() => {
     if (localStorage.getItem("admin_auth") === "true") {
@@ -49,6 +62,12 @@ export default function TestimonialAdminPage() {
     try {
       const res = await fetch("/api/testimonials?showHidden=true")
       if (res.ok) setTestimonials(await res.json())
+
+      const galleryRes = await fetch("/api/gallery")
+      if (galleryRes.ok) {
+        const data = await galleryRes.json()
+        setGallery(data)
+      }
     } catch (error) {
       toast.error("Hata oluştu")
     } finally {
@@ -108,15 +127,32 @@ export default function TestimonialAdminPage() {
 
   const handleDelete = async (id: number) => {
     if (!confirm("Silmek istediğinize emin misiniz?")) return
+  const handleUploadImage = async (file: File) => {
+    setUploadingImage(true)
     try {
-      const res = await fetch(`/api/testimonials?id=${id}`, { method: "DELETE" })
-      if (res.ok) {
-        toast.success("Silindi")
-        fetchData()
-      }
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/upload", { method: "POST", body: formData })
+      if (!res.ok) throw new Error("Upload failed")
+      const data = await res.json()
+      return data.url
     } catch (error) {
       toast.error("Hata")
+      return null
+    } finally {
+      setUploadingImage(false)
     }
+  }
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = await handleUploadImage(file)
+    if (url) {
+      setFormData({ ...formData, imageUrl: url })
+      setPreviewUrl(url)
+    }
+  }
   }
 
   if (!isVerified) {
@@ -172,7 +208,14 @@ export default function TestimonialAdminPage() {
               <Card key={t.id} className={t.hidden ? "opacity-60" : ""}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <div className="font-bold">{t.name}</div>
+                    <div className="flex items-center gap-3">
+                      {t.imageUrl && (
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden border">
+                          <Image src={t.imageUrl} alt={t.name} fill className="object-cover" />
+                        </div>
+                      )}
+                      <div className="font-bold">{t.name}</div>
+                    </div>
                     <div className="flex text-primary">
                       {[...Array(t.rating)].map((_, i) => <Star key={i} className="h-3 w-3 fill-current" />)}
                     </div>
@@ -205,8 +248,58 @@ export default function TestimonialAdminPage() {
               <div><Label>Yorum</Label><Textarea value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} /></div>
               <div><Label>Puan (1-5)</Label><Input type="number" min="1" max="5" value={formData.rating} onChange={e => setFormData({...formData, rating: e.target.value})} /></div>
               <div><Label>Sıralama</Label><Input type="number" value={formData.displayOrder} onChange={e => setFormData({...formData, displayOrder: e.target.value})} /></div>
-              <Button type="submit" className="w-full">Kaydet</Button>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Resim</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setIsGalleryOpen(true)}>Galleriden Seç</Button>
+                </div>
+                {previewUrl ? (
+                  <div className="relative w-full h-32 border rounded-lg overflow-hidden">
+                    <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                    <Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setPreviewUrl(""); setFormData({...formData, imageUrl: ""}) }}>
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="border border-dashed rounded-lg p-4 text-center">
+                    <Input type="file" accept="image/*" onChange={handleFileSelect} className="text-xs" />
+                  </div>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full" disabled={uploadingImage}>
+                {uploadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Kaydet
+              </Button>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Gallery Dialog */}
+        <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Galleriden Resim Seç</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
+              {gallery.map(img => (
+                <div 
+                  key={img.id} 
+                  className="relative aspect-square border rounded-lg overflow-hidden cursor-pointer hover:border-primary"
+                  onClick={() => {
+                    setFormData({ ...formData, imageUrl: img.url })
+                    setPreviewUrl(img.url)
+                    setIsGalleryOpen(false)
+                  }}
+                >
+                  <Image src={img.url} alt={img.alt || ""} fill className="object-cover" />
+                </div>
+              ))}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsGalleryOpen(false)}>Kapat</Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </main>
