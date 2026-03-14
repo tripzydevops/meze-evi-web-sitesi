@@ -959,7 +959,7 @@ export default function HomepageAdminPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {iconList.map(icon => {
-                      const IconComponent = (LucideIcons as any)[icon]
+                      const IconComponent = (LucideIconMap as any)[icon]
                       return (
                         <SelectItem key={icon} value={icon}>
                           <div className="flex items-center gap-2">
