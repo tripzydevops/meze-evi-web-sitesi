@@ -71,6 +71,7 @@ export default async function Home() {
                 alt="Bispecial Meze Restaurant"
                 fill
                 className="object-cover brightness-50"
+                style={{ objectPosition: heroData.imagePosition || 'center' }}
                 priority
               />
             )}
@@ -212,6 +213,7 @@ export default async function Home() {
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      style={{ objectPosition: aboutSection.imagePosition || 'center' }}
                     />
                   </div>
                 ) : (

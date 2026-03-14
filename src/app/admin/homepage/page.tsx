@@ -258,6 +258,7 @@ export default function HomepageAdminPage() {
         secondaryButtonText: formData.get("secondaryButtonText"),
         secondaryButtonLink: formData.get("secondaryButtonLink"),
         backgroundImageUrl: imageUrl,
+        imagePosition: heroData?.imagePosition || 'center',
         titleStyle: heroData?.titleStyle,
         subtitleStyle: heroData?.subtitleStyle,
       }
@@ -362,6 +363,7 @@ export default function HomepageAdminPage() {
         title: formData.get("title"),
         description: formData.get("description"),
         imageUrl: imageUrl,
+        imagePosition: aboutSection?.imagePosition || 'center',
         buttonText: formData.get("buttonText"),
         buttonLink: formData.get("buttonLink"),
         titleStyle: aboutSection?.titleStyle,
@@ -438,6 +440,7 @@ export default function HomepageAdminPage() {
               onImageSelect={handleHeroImageSelect}
               onImageClear={() => setHeroImage({ file: null, preview: "" })}
               onUrlChange={(url) => setHeroImage({ file: null, preview: url })}
+              onPositionChange={(pos) => heroData && setHeroData({ ...heroData, imagePosition: pos })}
             />
           </TabsContent>
 

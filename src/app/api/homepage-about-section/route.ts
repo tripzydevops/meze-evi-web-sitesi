@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, description, imageUrl, buttonText, buttonLink, titleStyle, descriptionStyle } = body;
+    const { title, description, imageUrl, imagePosition, buttonText, buttonLink, titleStyle, descriptionStyle } = body;
 
     // Validate required fields
     if (!title || typeof title !== 'string' || title.trim() === '') {
@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
       buttonLink?: string;
       titleStyle?: string | null;
       descriptionStyle?: string | null;
+      imagePosition?: string | null;
       createdAt: Date;
       updatedAt: Date;
     } = {
@@ -102,6 +103,9 @@ export async function POST(request: NextRequest) {
     }
     if (buttonLink !== undefined && buttonLink !== null) {
       insertData.buttonLink = typeof buttonLink === 'string' ? buttonLink.trim() : buttonLink;
+    }
+    if (imagePosition !== undefined && imagePosition !== null) {
+      insertData.imagePosition = typeof imagePosition === 'string' ? imagePosition.trim() : imagePosition;
     }
 
     const newSection = await db
@@ -147,7 +151,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, imageUrl, buttonText, buttonLink, titleStyle, descriptionStyle } = body;
+    const { title, description, imageUrl, imagePosition, buttonText, buttonLink, titleStyle, descriptionStyle } = body;
 
     // Build update object with only provided fields
     const updates: {
@@ -158,6 +162,7 @@ export async function PUT(request: NextRequest) {
       buttonLink?: string | null;
       titleStyle?: string | null;
       descriptionStyle?: string | null;
+      imagePosition?: string | null;
       updatedAt: Date;
     } = {
       updatedAt: new Date(),
@@ -186,6 +191,10 @@ export async function PUT(request: NextRequest) {
 
     if (imageUrl !== undefined) {
       updates.imageUrl = imageUrl === null ? null : (typeof imageUrl === 'string' ? imageUrl.trim() : imageUrl);
+    }
+
+    if (imagePosition !== undefined) {
+      updates.imagePosition = imagePosition === null ? null : (typeof imagePosition === 'string' ? imagePosition.trim() : imagePosition);
     }
 
     if (buttonText !== undefined) {

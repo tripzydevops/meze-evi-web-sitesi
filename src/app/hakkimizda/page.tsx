@@ -14,6 +14,7 @@ interface AboutSection {
   imageUrl: string | null
   buttonText: string | null
   buttonLink: string | null
+  imagePosition: string | null
 }
 
 export default function AboutPage() {
@@ -80,6 +81,7 @@ export default function AboutPage() {
             alt="Bispecial Meze"
             fill
             className="object-cover brightness-50"
+            style={{ objectPosition: aboutSection?.imagePosition || 'center' }}
             priority
           />
         </div>

@@ -47,6 +47,7 @@ export const homepageHero = pgTable('homepage_hero', {
   secondaryButtonText: varchar('secondary_button_text', { length: 100 }),
   secondaryButtonLink: varchar('secondary_button_link', { length: 255 }),
   backgroundImageUrl: text('background_image_url'),
+  imagePosition: varchar('image_position', { length: 50 }).default('center'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
@@ -91,6 +92,7 @@ export const homepageAboutSection = pgTable('homepage_about_section', {
   description: text('description').notNull(),
   descriptionStyle: text('description_style'),
   imageUrl: text('image_url'),
+  imagePosition: varchar('image_position', { length: 50 }).default('center'),
   buttonText: varchar('button_text', { length: 100 }),
   buttonLink: varchar('button_link', { length: 255 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),

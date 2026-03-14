@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,6 +19,7 @@ interface AboutSection {
   buttonLink: string | null
   titleStyle: string | null
   descriptionStyle: string | null
+  imagePosition: string | null
 }
 
 interface AboutTabProps {
@@ -136,6 +138,29 @@ export const AboutTab = ({
               onChange={(e) => onAboutChange({ ...aboutSection, imageUrl: e.target.value })}
               placeholder="Veya resim URL'si girin"
             />
+            <div className="space-y-2 mt-4">
+              <Label>Resim Hizalaması</Label>
+              <Select 
+                value={aboutSection.imagePosition || "center"} 
+                onValueChange={(val) => onAboutChange({ ...aboutSection, imagePosition: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Hizalama seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="top">Üst (Top)</SelectItem>
+                  <SelectItem value="top left">Üst Sol (Top Left)</SelectItem>
+                  <SelectItem value="top right">Üst Sağ (Top Right)</SelectItem>
+                  <SelectItem value="center">Orta (Center)</SelectItem>
+                  <SelectItem value="left">Sol (Left)</SelectItem>
+                  <SelectItem value="right">Sağ (Right)</SelectItem>
+                  <SelectItem value="bottom">Alt (Bottom)</SelectItem>
+                  <SelectItem value="bottom left">Alt Sol (Bottom Left)</SelectItem>
+                  <SelectItem value="bottom right">Alt Sağ (Bottom Right)</SelectItem>
+                </SelectContent>
+              </Select>
+              <input type="hidden" name="imagePosition" value={aboutSection.imagePosition || "center"} />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

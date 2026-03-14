@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
       secondaryButtonText,
       secondaryButtonLink,
       backgroundImageUrl,
+      imagePosition,
       titleStyle,
       subtitleStyle,
     } = body;
@@ -85,6 +86,7 @@ export async function POST(request: NextRequest) {
         secondaryButtonText: secondaryButtonText ? secondaryButtonText.trim() : null,
         secondaryButtonLink: secondaryButtonLink ? secondaryButtonLink.trim() : null,
         backgroundImageUrl: backgroundImageUrl ? backgroundImageUrl.trim() : null,
+        imagePosition: imagePosition ? imagePosition.trim() : 'center',
         titleStyle: titleStyle || null,
         subtitleStyle: subtitleStyle || null,
         createdAt: new Date(),
@@ -139,6 +141,7 @@ export async function PUT(request: NextRequest) {
       secondaryButtonText,
       secondaryButtonLink,
       backgroundImageUrl,
+      imagePosition,
       titleStyle,
       subtitleStyle,
     } = body;
@@ -179,6 +182,10 @@ export async function PUT(request: NextRequest) {
 
     if (backgroundImageUrl !== undefined) {
       updates.backgroundImageUrl = backgroundImageUrl ? backgroundImageUrl.trim() : null;
+    }
+
+    if (imagePosition !== undefined) {
+      updates.imagePosition = imagePosition ? imagePosition.trim() : 'center';
     }
 
     if (titleStyle !== undefined) {
