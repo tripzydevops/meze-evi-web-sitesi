@@ -127,6 +127,17 @@ export default function TestimonialAdminPage() {
 
   const handleDelete = async (id: number) => {
     if (!confirm("Silmek istediğinize emin misiniz?")) return
+    try {
+      const res = await fetch(`/api/testimonials?id=${id}`, { method: "DELETE" })
+      if (res.ok) {
+        toast.success("Silindi")
+        fetchData()
+      }
+    } catch (error) {
+      toast.error("Hata")
+    }
+  }
+
   const handleUploadImage = async (file: File) => {
     setUploadingImage(true)
     try {
@@ -152,7 +163,6 @@ export default function TestimonialAdminPage() {
       setFormData({ ...formData, imageUrl: url })
       setPreviewUrl(url)
     }
-  }
   }
 
   if (!isVerified) {
@@ -195,7 +205,7 @@ export default function TestimonialAdminPage() {
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold">Müşteri Yorumları</h2>
-          <Button onClick={() => { setEditing(null); setFormData({ name: "", content: "", rating: "5", displayOrder: "0" }); setIsDialogOpen(true) }}>
+          <Button onClick={() => { setEditing(null); setFormData({ name: "", content: "", rating: "5", displayOrder: "0", imageUrl: "" }); setPreviewUrl(""); setIsDialogOpen(true) }}>
             <Plus className="mr-2 h-4 w-4" /> Yeni Yorum Ekle
           </Button>
         </div>
@@ -224,7 +234,7 @@ export default function TestimonialAdminPage() {
                 <CardContent>
                   <p className="text-sm italic mb-4">"{t.content}"</p>
                   <div className="flex justify-end gap-2">
-                    <Button size="sm" variant="outline" onClick={() => { setEditing(t); setFormData({ name: t.name, content: t.content, rating: t.rating.toString(), displayOrder: t.displayOrder.toString() }); setIsDialogOpen(true) }}>
+                    <Button size="sm" variant="outline" onClick={() => { setEditing(t); setFormData({ name: t.name, content: t.content, rating: t.rating.toString(), displayOrder: t.displayOrder.toString(), imageUrl: t.imageUrl || "" }); setPreviewUrl(t.imageUrl || ""); setIsDialogOpen(true) }}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => handleToggleHidden(t)}>
