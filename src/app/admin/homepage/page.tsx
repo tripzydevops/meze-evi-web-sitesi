@@ -18,6 +18,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
+
 // LucideIcons map for dynamic icon rendering
 const LucideIconMap: Record<string, React.ComponentType<any>> = {
   ChefHat, Star, Clock, MapPin, Utensils, Heart, Award, Coffee, Users, Sparkles, Mail,
@@ -115,7 +116,7 @@ const StyleControls = ({
   value: string, 
   onChange: (val: string) => void 
 }) => {
-  const parts = value.split(' ')
+  const parts = (value || "").split(' ')
   
   const getFamily = () => parts.find(p => families.includes(p)) || 'font-serif'
   const getSize = () => parts.find(p => sizes.includes(p)) || 'text-4xl'
@@ -258,15 +259,6 @@ export default function HomepageAdminPage() {
     }
   }
 
-  // Redirect disabled for direct access fix
-  /*
-  useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push("/sign-in?redirect=/admin/homepage")
-    }
-  }, [session, isPending, router])
-  */
-
   const isAdmin = true 
 
   useEffect(() => {
@@ -408,8 +400,8 @@ export default function HomepageAdminPage() {
         secondaryButtonText: formData.get("secondaryButtonText"),
         secondaryButtonLink: formData.get("secondaryButtonLink"),
         backgroundImageUrl: imageUrl,
-        titleStyle: formData.get("titleStyle"),
-        subtitleStyle: formData.get("subtitleStyle"),
+        titleStyle: heroData?.titleStyle,
+        subtitleStyle: heroData?.subtitleStyle,
       }
 
       const response = await fetch(`/api/homepage-hero?id=${heroData?.id}`, {
@@ -658,12 +650,12 @@ export default function HomepageAdminPage() {
               <div className="space-y-2">
                 <Label htmlFor="admin-password">Şifre</Label>
                 <Input
-                  id="admin-password"
-                  type="password"
-                  placeholder="••••"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  autoFocus
+                   id="admin-password"
+                   type="password"
+                   placeholder="••••"
+                   value={passwordInput}
+                   onChange={(e) => setPasswordInput(e.target.value)}
+                   autoFocus
                 />
               </div>
               <Button type="submit" className="w-full">
@@ -1291,6 +1283,35 @@ export default function HomepageAdminPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Gallery Dialog */}
+      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Galleriden Resim Seç</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
+            {gallery.map(img => (
+              <div 
+                key={img.id} 
+                className="relative aspect-square border rounded-lg overflow-hidden cursor-pointer hover:border-primary"
+                onClick={() => {
+                  if (galleryTarget === "hero") {
+                    setHeroImage({ file: null, preview: img.url })
+                    if (heroData) setHeroData({ ...heroData, backgroundImageUrl: img.url })
+                  } else if (galleryTarget === "about") {
+                    setAboutImage({ file: null, preview: img.url })
+                    if (aboutSection) setAboutSection({ ...aboutSection, imageUrl: img.url })
+                  }
+                  setIsGalleryOpen(false)
+                }}
+              >
+                <Image src={img.url} alt={img.alt || ""} fill className="object-cover" />
+              </div>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
