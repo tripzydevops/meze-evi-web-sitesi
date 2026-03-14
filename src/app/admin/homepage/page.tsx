@@ -271,7 +271,7 @@ export default function HomepageAdminPage() {
   const fetchAllData = async () => {
     setIsLoading(true)
     try {
-      const [heroRes, featuresRes, featuredSectionRes, dishesRes, aboutRes, menuItemsRes] = await Promise.all([
+      const [heroRes, featuresRes, featuredSectionRes, dishesRes, aboutRes, menuItemsRes, galleryRes] = await Promise.all([
         fetch("/api/homepage-hero"),
         fetch("/api/homepage-features"),
         fetch("/api/homepage-featured-section"),
@@ -314,12 +314,6 @@ export default function HomepageAdminPage() {
       if (menuItemsRes.ok) {
         const data = await menuItemsRes.json()
         setMenuItems(data)
-      }
-
-      const galleryRes = await fetch("/api/gallery")
-      if (galleryRes.ok) {
-        const data = await galleryRes.json()
-        setGallery(data)
       }
     } catch (error) {
       toast.error("Veriler yüklenirken hata oluştu")
