@@ -28,11 +28,11 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
             <Image
-              src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/document-uploads/bi-special-logo-1760438834702.jpg"
+              src="/brand/logo.jpg"
               alt="Bi Special Logo"
               width={50}
               height={50}
-              className="object-contain rounded-full"
+              className="object-contain rounded-full border-2 border-primary/20"
             />
             <Image
               src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/document-uploads/download-1760438706128.png"
