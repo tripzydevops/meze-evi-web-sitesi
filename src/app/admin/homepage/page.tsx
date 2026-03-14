@@ -277,7 +277,8 @@ export default function HomepageAdminPage() {
         fetch("/api/homepage-featured-section"),
         fetch("/api/homepage-featured-dishes"),
         fetch("/api/homepage-about-section"),
-        fetch("/api/menu-items")
+        fetch("/api/menu-items"),
+        fetch("/api/gallery")
       ])
 
       if (heroRes.ok) {
@@ -298,6 +299,11 @@ export default function HomepageAdminPage() {
       if (dishesRes.ok) {
         const data = await dishesRes.json()
         setFeaturedDishes(data)
+      }
+
+      if (galleryRes && galleryRes.ok) {
+        const data = await galleryRes.json()
+        setGallery(data)
       }
 
       if (aboutRes.ok) {
