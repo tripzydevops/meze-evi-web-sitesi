@@ -26,19 +26,20 @@ export default function Navigation() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 h-full py-2">
+          <Link href="/" className="flex items-center gap-4 shrink-0 h-20">
             <Image
               src="/brand/logo.jpg"
               alt="Bi Special Logo"
-              width={60}
-              height={60}
-              className="w-[60px] h-[60px] object-contain rounded-full border-2 border-primary/20"
+              width={70}
+              height={70}
+              className="w-[70px] h-[70px] object-contain rounded-full border-2 border-primary/20 shadow-sm"
             />
-            <div className="relative h-12 w-[160px]">
+            <div className="relative h-16 w-[200px]">
               <Image
                 src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/document-uploads/download-1760438706128.png"
                 alt="Bi Special"
                 fill
+                priority
                 className="object-contain object-left"
               />
             </div>
