@@ -187,7 +187,7 @@ const StyleControls = ({
       </div>
       <div className="space-y-1">
         <span className="text-xs font-medium">Renk</span>
-        <Select value={getColor()} onValueChange={(val) => updateStyle({ color: val })}>
+        <Select value={getColor() || "none"} onValueChange={(val) => updateStyle({ color: val })}>
           <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="none">Varsayılan</SelectItem>
