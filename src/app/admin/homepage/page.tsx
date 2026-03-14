@@ -93,6 +93,115 @@ interface AboutSection {
 
 const iconList = ['ChefHat', 'Star', 'Clock', 'MapPin', 'Utensils', 'Heart', 'Award', 'Coffee', 'Users', 'Sparkles']
 
+interface GalleryImage {
+  id: number
+  url: string
+  alt: string | null
+}
+
+const StyleControls = ({ 
+  prefix, 
+  value, 
+  onChange 
+}: { 
+  prefix: string, 
+  value: string, 
+  onChange: (val: string) => void 
+}) => {
+  const parts = value.split(' ')
+  
+  const getFamily = () => parts.find(p => p.startsWith('font-')) || 'font-serif'
+  const getSize = () => parts.find(p => p.startsWith('text-')) || 'text-4xl'
+  const getWeight = () => parts.find(p => p.startsWith('font-') && p !== getFamily()) || 'font-bold'
+  const getAlign = () => parts.find(p => p.startsWith('text-') && p !== getSize()) || 'text-left'
+  const getMargin = () => parts.find(p => p.startsWith('mb-')) || 'mb-6'
+  const getColor = () => parts.find(p => p.startsWith('text-') && !p.startsWith('text-left') && !p.startsWith('text-center') && !p.startsWith('text-right') && !p.startsWith('text-4xl') && !p.startsWith('text-5xl') && !p.startsWith('text-6xl') && !p.startsWith('text-7xl') && !p.startsWith('text-xl') && !p.startsWith('text-lg') && !p.startsWith('text-base') && !p.startsWith('text-sm') && !p.includes('xs')) || ''
+
+  const updateStyle = (newParts: Partial<{ family: string, size: string, weight: string, align: string, margin: string, color: string }>) => {
+    const current = {
+      family: getFamily(),
+      size: getSize(),
+      weight: getWeight(),
+      align: getAlign(),
+      margin: getMargin(),
+      color: getColor()
+    }
+    const final = { ...current, ...newParts }
+    onChange(Object.values(final).filter(Boolean).join(' '))
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 border rounded-md bg-muted/20">
+      <div className="space-y-1">
+        <span className="text-xs font-medium">{prefix} Yazı Tipi</span>
+        <Select value={getFamily()} onValueChange={(val) => updateStyle({ family: val })}>
+          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="font-serif">Serif (Zarif)</SelectItem>
+            <SelectItem value="font-sans">Sans (Modern)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <span className="text-xs font-medium">Boyut</span>
+        <Select value={getSize()} onValueChange={(val) => updateStyle({ size: val })}>
+          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="text-sm">SM</SelectItem>
+            <SelectItem value="text-base">M</SelectItem>
+            <SelectItem value="text-lg">LG</SelectItem>
+            <SelectItem value="text-xl">XL</SelectItem>
+            <SelectItem value="text-2xl">2XL</SelectItem>
+            <SelectItem value="text-3xl">3XL</SelectItem>
+            <SelectItem value="text-4xl">4XL</SelectItem>
+            <SelectItem value="text-5xl">5XL</SelectItem>
+            <SelectItem value="text-6xl">6XL</SelectItem>
+            <SelectItem value="text-7xl">7XL</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <span className="text-xs font-medium">Kalınlık</span>
+        <Select value={getWeight()} onValueChange={(val) => updateStyle({ weight: val })}>
+          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="font-light">İnce</SelectItem>
+            <SelectItem value="font-normal">Normal</SelectItem>
+            <SelectItem value="font-medium">Orta</SelectItem>
+            <SelectItem value="font-semibold">Yarı Kalın</SelectItem>
+            <SelectItem value="font-bold">Kalın</SelectItem>
+            <SelectItem value="font-extrabold">Çok Kalın</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <span className="text-xs font-medium">Hizalama</span>
+        <Select value={getAlign()} onValueChange={(val) => updateStyle({ align: val })}>
+          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="text-left">Sol</SelectItem>
+            <SelectItem value="text-center">Orta</SelectItem>
+            <SelectItem value="text-right">Sağ</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <span className="text-xs font-medium">Renk</span>
+        <Select value={getColor()} onValueChange={(val) => updateStyle({ color: val })}>
+          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Varsayılan</SelectItem>
+            <SelectItem value="text-primary">Bordo (Tema)</SelectItem>
+            <SelectItem value="text-amber-600">Kehribar</SelectItem>
+            <SelectItem value="text-gray-500">Gri</SelectItem>
+            <SelectItem value="text-white">Beyaz</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  )
+}
+
 export default function HomepageAdminPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
@@ -116,6 +225,9 @@ export default function HomepageAdminPage() {
   const [aboutImage, setAboutImage] = useState<{ file: File | null, preview: string }>({ file: null, preview: "" })
   const [dishPreview, setDishPreview] = useState<string>("")
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [gallery, setGallery] = useState<GalleryImage[]>([])
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+  const [galleryTarget, setGalleryTarget] = useState<"hero" | "about" | null>(null)
 
   const [isPasswordVerified, setIsPasswordVerified] = useState(false)
   const [passwordInput, setPasswordInput] = useState("")
@@ -196,6 +308,12 @@ export default function HomepageAdminPage() {
       if (menuItemsRes.ok) {
         const data = await menuItemsRes.json()
         setMenuItems(data)
+      }
+
+      const galleryRes = await fetch("/api/gallery")
+      if (galleryRes.ok) {
+        const data = await galleryRes.json()
+        setGallery(data)
       }
     } catch (error) {
       toast.error("Veriler yüklenirken hata oluştu")
@@ -653,33 +771,34 @@ export default function HomepageAdminPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Başlık Stili</Label>
-                        <Select name="titleStyle" defaultValue={heroData.titleStyle || "font-serif text-5xl md:text-7xl font-bold mb-6"}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="font-serif text-4xl font-normal mb-6">Normal 4XL</SelectItem>
-                            <SelectItem value="font-serif text-5xl font-bold mb-6">Kalın 5XL</SelectItem>
-                            <SelectItem value="font-serif text-5xl md:text-7xl font-bold mb-6">Varsayılan (Büyük)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Alt Başlık Stili</Label>
-                        <Select name="subtitleStyle" defaultValue={heroData.subtitleStyle || "text-xl md:text-2xl mb-8 text-gray-200"}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="text-lg mb-8 text-gray-200">Küçük</SelectItem>
-                            <SelectItem value="text-xl md:text-2xl mb-8 text-gray-200">Varsayılan</SelectItem>
-                            <SelectItem value="text-3xl mb-8 text-gray-200">Büyük</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="space-y-4">
+                      <StyleControls 
+                        prefix="Başlık" 
+                        value={heroData.titleStyle || "font-serif text-5xl md:text-7xl font-bold mb-6"} 
+                        onChange={(val) => setHeroData({...heroData, titleStyle: val})} 
+                      />
+                      <StyleControls 
+                        prefix="Alt Başlık" 
+                        value={heroData.subtitleStyle || "text-xl md:text-2xl mb-8 text-gray-200"} 
+                        onChange={(val) => setHeroData({...heroData, subtitleStyle: val})} 
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Arka Plan Resmi</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Arka Plan Resmi</Label>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setGalleryTarget("hero")
+                            setIsGalleryOpen(true)
+                          }}
+                        >
+                          Galleriden Seç
+                        </Button>
+                      </div>
                       {heroImage.preview || heroData.backgroundImageUrl ? (
                         <div className="relative w-full h-48 border rounded-lg overflow-hidden">
                           <Image
@@ -901,39 +1020,34 @@ export default function HomepageAdminPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Başlık Stili</Label>
-                        <Select 
-                          value={aboutSection.titleStyle || "font-serif text-4xl md:text-5xl font-bold mb-6"} 
-                          onValueChange={(val) => setAboutSection({...aboutSection, titleStyle: val})}
-                        >
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="font-serif text-3xl font-semibold mb-6">Küçük Başlık</SelectItem>
-                            <SelectItem value="font-serif text-4xl md:text-5xl font-bold mb-6">Varsayılan</SelectItem>
-                            <SelectItem value="font-serif text-6xl font-extrabold mb-6">Devasa</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Açıklama Stili</Label>
-                        <Select 
-                          value={aboutSection.descriptionStyle || "text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line"} 
-                          onValueChange={(val) => setAboutSection({...aboutSection, descriptionStyle: val})}
-                        >
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="text-muted-foreground text-sm mb-8 leading-relaxed whitespace-pre-line">Küçük</SelectItem>
-                            <SelectItem value="text-muted-foreground text-base mb-8 leading-relaxed whitespace-pre-line">Orta</SelectItem>
-                            <SelectItem value="text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line">Varsayılan (Büyük)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="space-y-4">
+                      <StyleControls 
+                        prefix="Başlık" 
+                        value={aboutSection.titleStyle || "font-serif text-4xl md:text-5xl font-bold mb-6"} 
+                        onChange={(val) => setAboutSection({...aboutSection, titleStyle: val})} 
+                      />
+                      <StyleControls 
+                        prefix="Açıklama" 
+                        value={aboutSection.descriptionStyle || "text-muted-foreground text-lg mb-8 leading-relaxed whitespace-pre-line"} 
+                        onChange={(val) => setAboutSection({...aboutSection, descriptionStyle: val})} 
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Resim</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Resim</Label>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setGalleryTarget("about")
+                            setIsGalleryOpen(true)
+                          }}
+                        >
+                          Galleriden Seç
+                        </Button>
+                      </div>
                       {aboutImage.preview || aboutSection.imageUrl ? (
                         <div className="relative w-full h-48 border rounded-lg overflow-hidden">
                           <Image
